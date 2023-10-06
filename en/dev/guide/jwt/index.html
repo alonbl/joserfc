@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>JSON Web Token - joserfc</title>
+    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="JSON Web Signature" href="../jws/" /><link rel="prev" title="JSON Web Key" href="../jwk/" />
+    <link rel="canonical" href="https://jose.authlib.org/en/dev/guide/jwt/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/en/dev/guide/jwt/"/>
+<meta property="og:title" content="JSON Web Token"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="description" content="How to encode and decode a JSON Web Token (JWT) in python."/>
+<meta property="og:description" content="How to encode and decode a JSON Web Token (JWT) in python."/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="zh" href="https://jose.authlib.org/zh/dev/guide/jwt/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../../">
+      <img class="light-logo" src="../../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../../search/" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">Translations</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/guide/jwt/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/guide/jwt/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="Switch to dark mode" data-aria-dark="Switch to light mode">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../">Guide</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../jwk/">JSON Web Key</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JSON Web Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jws/">JSON Web Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwe/">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">Algorithms</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../registry/">Registry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrations/">Migrations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/authlib/">Migrating from Authlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/pyjwt/">Migrating from PyJWT</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/">API References</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jws/">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwk/">JWK API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwt/">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../security/">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../stability/">API stability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/structure/">Code structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/translation/">Translations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/authors/">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/sponsors/">Sponsors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>On this page</h3>
+    <ul>
+<li><a class="reference internal" href="#encode-token">Encode token</a></li>
+<li><a class="reference internal" href="#decode-token">Decode token</a></li>
+<li><a class="reference internal" href="#validate-claims">Validate claims</a><ul>
+<li><a class="reference internal" href="#missing-essential-claims">Missing essential claims</a></li>
+<li><a class="reference internal" href="#allow-empty-essential-claims">Allow empty essential claims</a></li>
+<li><a class="reference internal" href="#invalid-claims-values">Invalid claims values</a></li>
+<li><a class="reference internal" href="#default-validators">Default validators</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#jws-jwe">JWS &amp; JWE</a></li>
+<li><a class="reference internal" href="#the-key-parameter">The key parameter</a><ul>
+<li><a class="reference internal" href="#key-types">Key types</a></li>
+<li><a class="reference internal" href="#use-key-set">Use key set</a></li>
+<li><a class="reference internal" href="#callable-key">Callable key</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#algorithms-registry">Algorithms &amp; Registry</a></li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/guide/jwt.rst">Edit this page</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../../">joserfc</a><span>/</span></li>
+      
+      <li><a href="../">Guide</a><span>/</span></li>
+      
+      <li><strong>JSON Web Token</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="json-web-token">
+<span id="jwt"></span><h1>JSON Web Token<a class="headerlink" href="#json-web-token" title="Permalink to this heading">¶</a></h1>
+<p>JSON Web Token (JWT) is built on top of <a class="reference internal" href="../jws/#jws"><span class="std std-ref">JSON Web Signature</span></a> or <a class="reference internal" href="../jwe/#jwe"><span class="std std-ref">JSON Web Encryption</span></a> and includes
+specific payload claims. These claims are required to be in JSON format and
+follow a predefined set of fields.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>Do you know that JSON Web Token (JWT) is not a part of JOSE. Instead,
+it was created by the OAuth working group.</p>
+</div>
+<section id="encode-token">
+<h2>Encode token<a class="headerlink" href="#encode-token" title="Permalink to this heading">¶</a></h2>
+<p><a class="reference internal" href="../../api/jwt/#joserfc.jwt.encode" title="joserfc.jwt.encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encode()</span></code></a> is the method for creating a JSON Web Token string.
+It encodes the payload with the given <code class="docutils literal notranslate"><span class="pre">alg</span></code> in header:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwt</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">OctKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">}</span>
+</span><span id="1-5"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">}</span>
+</span><span id="1-6"><span class="n">key</span> <span class="o">=</span> <span class="n">OctKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-7"><span class="n">text</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">claims</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The returned value of <code class="docutils literal notranslate"><span class="pre">text</span></code> in above example is:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><span id="1-1">eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.
+</span><span id="1-2">eyJpc3MiOiJodHRwczovL2F1dGhsaWIub3JnIn0.
+</span><span id="1-3">Zm430u0j1wzf5Me5Zoj2h6dTt9IFsb7-G5mUW3BTWbo
+</span></pre></div>
+</div>
+<p>Line breaks for display only.</p>
+</section>
+<section id="decode-token">
+<h2>Decode token<a class="headerlink" href="#decode-token" title="Permalink to this heading">¶</a></h2>
+<p><a class="reference internal" href="../../api/jwt/#joserfc.jwt.decode" title="joserfc.jwt.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decode()</span></code></a> is the method to translate a JSON Web Token string
+into a token object which contains <code class="docutils literal notranslate"><span class="pre">.header</span></code> and <code class="docutils literal notranslate"><span class="pre">.claims</span></code> properties:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="c1"># reuse the text and key in above example</span>
+</span><span id="1-2"><span class="n">token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span><span id="1-3"><span class="c1"># token.header = {&#39;alg&#39;: &#39;HS256&#39;, &#39;typ&#39;: &#39;JWT&#39;}</span>
+</span><span id="1-4"><span class="c1"># token.claims = {&quot;iss&quot;: &quot;https://authlib.org&quot;}</span>
+</span></pre></div>
+</div>
+</section>
+<section id="validate-claims">
+<span id="claims"></span><h2>Validate claims<a class="headerlink" href="#validate-claims" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">jwt.decode</span></code> method will only verify if the payload is a JSON
+base64 string.</p>
+<p>You can define claims requests <a class="reference internal" href="../../api/jwt/#joserfc.jwt.JWTClaimsRegistry" title="joserfc.jwt.JWTClaimsRegistry"><code class="xref py py-class docutils literal notranslate"><span class="pre">JWTClaimsRegistry</span></code></a> for validating the
+decoded claims. The <code class="docutils literal notranslate"><span class="pre">JWTClaimsRegistry</span></code> accepts each claim as an
+<a class="reference external" href="ClaimsOption">Individual Claims Requests</a> JSON object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.jwt</span> <span class="kn">import</span> <span class="n">JWTClaimsRegistry</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">claims_requests</span> <span class="o">=</span> <span class="n">JWTClaimsRegistry</span><span class="p">(</span>
+</span><span id="1-4">    <span class="n">iss</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;essential&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">},</span>
+</span><span id="1-5"><span class="p">)</span>
+</span><span id="1-6">
+</span><span id="1-7"><span class="c1"># usually you will use the claims registry after ``.decode``</span>
+</span><span id="1-8"><span class="n">claims_requests</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">token</span><span class="o">.</span><span class="n">claims</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The Individual Claims Requests JSON object contains:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">essential</span></code></dt><dd><p>OPTIONAL. Indicates whether the Claim being requested is an Essential Claim.
+If the value is true, this indicates that the Claim is an Essential Claim.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">value</span></code></dt><dd><p>OPTIONAL. Requests that the Claim be returned with a particular value.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">values</span></code></dt><dd><p>OPTIONAL. Requests that the Claim be returned with one of a set of values,
+with the values appearing in order of preference.</p>
+</dd>
+</dl>
+<p>And we added one more field:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">allow_blank</span></code></dt><dd><p>OPTIONAL. Allow essential claims to be an empty string.</p>
+</dd>
+</dl>
+<section id="missing-essential-claims">
+<h3>Missing essential claims<a class="headerlink" href="#missing-essential-claims" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">claims_requests</span> <span class="o">=</span> <span class="n">JWTClaimsRegistry</span><span class="p">(</span><span class="n">aud</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;essential&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="c1"># this will raise MissingClaimError</span>
+</span><span id="1-4"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">}</span>
+</span><span id="1-5"><span class="n">claims_requests</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">claims</span><span class="p">)</span>
+</span><span id="1-6">
+</span><span id="1-7"><span class="c1"># this will raise MissingClaimError</span>
+</span><span id="1-8"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+</span><span id="1-9"><span class="n">claims_requests</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">claims</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+<section id="allow-empty-essential-claims">
+<h3>Allow empty essential claims<a class="headerlink" href="#allow-empty-essential-claims" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">claims_requests</span> <span class="o">=</span> <span class="n">JWTClaimsRegistry</span><span class="p">(</span><span class="n">aud</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;essential&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;allow_blank&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="c1"># this will NOT raise MissingClaimError</span>
+</span><span id="1-4"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+</span><span id="1-5"><span class="n">claims_requests</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">claims</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+<section id="invalid-claims-values">
+<h3>Invalid claims values<a class="headerlink" href="#invalid-claims-values" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">}</span>
+</span><span id="1-2"><span class="n">claims_requests</span> <span class="o">=</span> <span class="n">JWTClaimsRegistry</span><span class="p">(</span><span class="n">iss</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">:</span> <span class="s2">&quot;https://jose.authlib.org&quot;</span><span class="p">})</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">claims_requests</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">claims</span><span class="p">)</span>  <span class="c1"># this will raise InvalidClaimError</span>
+</span></pre></div>
+</div>
+</section>
+<section id="default-validators">
+<h3>Default validators<a class="headerlink" href="#default-validators" title="Permalink to this heading">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">JWTClaimsRegistry</span></code> has built-in validators for timing related fields:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">exp</span></code>: expiration time</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">nbf</span></code>: not before</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">iat</span></code>: issued at</p></li>
+</ul>
+</section>
+</section>
+<section id="jws-jwe">
+<h2>JWS &amp; JWE<a class="headerlink" href="#jws-jwe" title="Permalink to this heading">¶</a></h2>
+<p>JWT is built on top of JWS and JWE, all of the above examples are in JWS. Here
+is an example of JWE:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwt</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">OctKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;enc&quot;</span><span class="p">:</span> <span class="s2">&quot;A128GCM&quot;</span><span class="p">}</span>
+</span><span id="1-5"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">}</span>
+</span><span id="1-6"><span class="n">key</span> <span class="o">=</span> <span class="n">OctKey</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>  <span class="c1"># the algorithm requires key of 128 bit size</span>
+</span><span id="1-7"><span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">claims</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The JWE formatted result contains 5 parts, while JWS only contains 3 parts,
+a JWE example would be something like this (line breaks for display only):</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><span id="1-1">eyJhbGciOiJBMTI4S1ciLCJlbmMiOiJBMTI4R0NNIiwidHlwIjoiSldUIn0.
+</span><span id="1-2">F3plSTFE5GPJNs_qGsmoVx4o402URh5G.
+</span><span id="1-3">57P7XX6C3hJbk-Nl.
+</span><span id="1-4">dpgaZFi3uI1RiOqI3bmYY3_opkljIwcByf_j6fM.
+</span><span id="1-5">uv1BZZy5F-ci54BS11EYGg
+</span></pre></div>
+</div>
+<p>Another difference is the key used for <code class="docutils literal notranslate"><span class="pre">encode</span></code> and <code class="docutils literal notranslate"><span class="pre">decode</span></code>.</p>
+<p>For <a class="reference internal" href="../jws/#jws"><span class="std std-ref">JSON Web Signature</span></a>, a private key is used for <code class="docutils literal notranslate"><span class="pre">encode</span></code>, and a public key is used for
+<code class="docutils literal notranslate"><span class="pre">decode</span></code>. The <code class="docutils literal notranslate"><span class="pre">encode</span></code> method will use a private key to sign, and the <code class="docutils literal notranslate"><span class="pre">decode</span></code>
+method will use a public key to verify.</p>
+<p>For <a class="reference internal" href="../jwe/#jwe"><span class="std std-ref">JSON Web Encryption</span></a>, it is the contrary, a public key is used for <code class="docutils literal notranslate"><span class="pre">encode</span></code>, and a private
+key is used for <code class="docutils literal notranslate"><span class="pre">decode</span></code>. The <code class="docutils literal notranslate"><span class="pre">encode</span></code> method  will use a public key to encrypt,
+and the <code class="docutils literal notranslate"><span class="pre">decode</span></code> method will use a private key to decrypt.</p>
+</section>
+<section id="the-key-parameter">
+<h2>The key parameter<a class="headerlink" href="#the-key-parameter" title="Permalink to this heading">¶</a></h2>
+<p>In the above example, we’re using <a class="reference internal" href="../jwk/#octkey"><span class="std std-ref">OctKey</span></a> only for simplicity. There are other
+types of keys in <a class="reference internal" href="../jwk/#jwk"><span class="std std-ref">JSON Web Key</span></a>.</p>
+<section id="key-types">
+<h3>Key types<a class="headerlink" href="#key-types" title="Permalink to this heading">¶</a></h3>
+<p>Each algorithm (<code class="docutils literal notranslate"><span class="pre">alg</span></code> in header) requires a certain type of key. For example:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">HS256</span></code> requires <code class="docutils literal notranslate"><span class="pre">OctKey</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RS256</span></code> requires <code class="docutils literal notranslate"><span class="pre">RSAKey</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ES256</span></code> requires <code class="docutils literal notranslate"><span class="pre">ECKey</span></code> or <code class="docutils literal notranslate"><span class="pre">OKPKey</span></code></p></li>
+</ul>
+<p>You can find the correct key type for each algorithm at:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../algorithms/#jws-algorithms"><span class="std std-ref">JSON Web Signature Algorithms</span></a></p></li>
+<li><p><a class="reference internal" href="../algorithms/#jwe-algorithms"><span class="std std-ref">JSON Web Encryption Algorithms</span></a></p></li>
+</ul>
+<p>Here is an example of a JWT with “alg” of <code class="docutils literal notranslate"><span class="pre">RS256</span></code> in JWS type:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwt</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">RSAKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;RS256&quot;</span><span class="p">}</span>
+</span><span id="1-5"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">}</span>
+</span><span id="1-6"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your-private-rsa-key.pem&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="1-7">    <span class="n">key</span> <span class="o">=</span> <span class="n">RSAKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+</span><span id="1-8">
+</span><span id="1-9"><span class="c1"># &quot;RS256&quot; is a recommended algorithm, no need to pass a custom ``registry``</span>
+</span><span id="1-10"><span class="n">text</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">claims</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span><span id="1-11">
+</span><span id="1-12"><span class="c1"># ``.encode`` for JWS type use a public key, if using a private key,</span>
+</span><span id="1-13"><span class="c1"># it will automatically extract the public key from private key</span>
+</span><span id="1-14"><span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>In production, <code class="docutils literal notranslate"><span class="pre">jwt.encode</span></code> is usually used by the <em>client</em> side, a client
+normally does not have the access to private keys. The server provider would
+usually expose the public keys in JWK Set.</p>
+</section>
+<section id="use-key-set">
+<h3>Use key set<a class="headerlink" href="#use-key-set" title="Permalink to this heading">¶</a></h3>
+<p>You can also pass a JWK Set to the <code class="docutils literal notranslate"><span class="pre">key</span></code> parameter of <a class="reference internal" href="../../api/jwt/#joserfc.jwt.encode" title="joserfc.jwt.encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encode()</span></code></a> and
+<a class="reference internal" href="../../api/jwt/#joserfc.jwt.decode" title="joserfc.jwt.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decode()</span></code></a> methods.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">KeySet</span>
+</span><span id="1-3"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwt</span>
+</span><span id="1-4">
+</span><span id="1-5"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your-private-jwks.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="1-6">    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="1-7">    <span class="n">key_set</span> <span class="o">=</span> <span class="n">KeySet</span><span class="o">.</span><span class="n">import_key_set</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="1-8">
+</span><span id="1-9"><span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;RS256&quot;</span><span class="p">,</span> <span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">}</span>
+</span><span id="1-10"><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">}</span>
+</span><span id="1-11"><span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">claims</span><span class="p">,</span> <span class="n">key_set</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The methods will find the correct key according to the <code class="docutils literal notranslate"><span class="pre">kid</span></code> you specified.
+If there is no <code class="docutils literal notranslate"><span class="pre">kid</span></code> in header, it will pick on randomly and add the <code class="docutils literal notranslate"><span class="pre">kid</span></code>
+of the key into header.</p>
+<p>A client would usually get the public key set from a public URL, normally the
+<code class="docutils literal notranslate"><span class="pre">decode</span></code> code would be something like:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">import</span> <span class="nn">requests</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwt</span>
+</span><span id="1-3"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">KeySet</span>
+</span><span id="1-4">
+</span><span id="1-5"><span class="n">resp</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://example.com/.well_known/jwks.json&quot;</span><span class="p">)</span>
+</span><span id="1-6"><span class="n">key_set</span> <span class="o">=</span> <span class="n">KeySet</span><span class="o">.</span><span class="n">import_key_set</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</span><span id="1-7">
+</span><span id="1-8"><span class="k">def</span> <span class="nf">parse_token</span><span class="p">(</span><span class="n">token_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+</span><span id="1-9">    <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">token_string</span><span class="p">,</span> <span class="n">key_set</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+<section id="callable-key">
+<h3>Callable key<a class="headerlink" href="#callable-key" title="Permalink to this heading">¶</a></h3>
+<p>It is also possible to assign a callable function as the <code class="docutils literal notranslate"><span class="pre">key</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwk</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="k">def</span> <span class="nf">load_key</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+</span><span id="1-5">    <span class="n">headers</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">headers</span><span class="p">()</span>
+</span><span id="1-6">    <span class="n">alg</span> <span class="o">=</span> <span class="n">headers</span><span class="p">[</span><span class="s2">&quot;alg&quot;</span><span class="p">]</span>
+</span><span id="1-7">    <span class="n">key_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;my-</span><span class="si">{</span><span class="n">alg</span><span class="si">}</span><span class="s2">-key.json&quot;</span>
+</span><span id="1-8">    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">key_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="1-9">        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="1-10">        <span class="n">key</span> <span class="o">=</span> <span class="n">jwk</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;kty&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">)</span>
+</span><span id="1-11">    <span class="k">return</span> <span class="n">key</span>
+</span><span id="1-12">
+</span><span id="1-13"><span class="c1"># jwt.encode(header, claims, load_key)</span>
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="algorithms-registry">
+<h2>Algorithms &amp; Registry<a class="headerlink" href="#algorithms-registry" title="Permalink to this heading">¶</a></h2>
+<p>The <a class="reference internal" href="../../api/jwt/#joserfc.jwt.encode" title="joserfc.jwt.encode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encode()</span></code></a> and <a class="reference internal" href="../../api/jwt/#joserfc.jwt.decode" title="joserfc.jwt.decode"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decode()</span></code></a> accept an <code class="docutils literal notranslate"><span class="pre">algorithms</span></code> parameter for
+specifying the allowed algorithms. By default, it only allows your to use
+recommended algorithms.</p>
+<p>You can find out the recommended algorithms at:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../algorithms/#jws-algorithms"><span class="std std-ref">JSON Web Signature Algorithms</span></a></p></li>
+<li><p><a class="reference internal" href="../algorithms/#jwe-algorithms"><span class="std std-ref">JSON Web Encryption Algorithms</span></a></p></li>
+</ul>
+<p>For instance, <code class="docutils literal notranslate"><span class="pre">HS386</span></code> is not a recommended algorithm, and you want to use
+this algorithm:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwt</span><span class="p">,</span> <span class="n">jwk</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">header</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS384&quot;</span><span class="p">}</span>
+</span><span id="1-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">claims</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;iss&quot;</span><span class="p">:</span> <span class="s2">&quot;https://authlib.org&quot;</span><span class="p">}</span>
+</span><span id="1-4"><span class="gp">&gt;&gt;&gt; </span><span class="n">key</span> <span class="o">=</span> <span class="n">jwk</span><span class="o">.</span><span class="n">OctKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="n">header</span><span class="p">,</span> <span class="n">claims</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HS384&quot;</span><span class="p">])</span>
+</span></pre></div>
+</div>
+<p>If not specifying the <code class="docutils literal notranslate"><span class="pre">algorithms</span></code> parameter, the <code class="docutils literal notranslate"><span class="pre">encode</span></code> method will
+raise an error.</p>
+</section>
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../jwk/">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>Previous</span>
+        
+        <div class="title">JSON Web Key</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="../jws/">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">JSON Web Signature</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script src="../../_static/shibuya.js"></script>
+    
+</body>
+</html>

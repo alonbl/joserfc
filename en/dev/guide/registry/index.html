@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Registry - joserfc</title>
+    <link rel="index" title="Index" href="../../genindex/" /><link rel="search" title="Search" href="../../search/" /><link rel="next" title="Migrations" href="../../migrations/" /><link rel="prev" title="Algorithms" href="../algorithms/" />
+    <link rel="canonical" href="https://jose.authlib.org/en/dev/guide/registry/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/en/dev/guide/registry/"/>
+<meta property="og:title" content="Registry"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="description" content="Advanced usage of registry for JWS, and JWE."/>
+<meta property="og:description" content="Advanced usage of registry for JWS, and JWE."/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="zh" href="https://jose.authlib.org/zh/dev/guide/registry/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../../">
+      <img class="light-logo" src="../../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../../search/" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">Translations</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/guide/registry/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/guide/registry/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="Switch to dark mode" data-aria-dark="Switch to light mode">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">Getting started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/">Installation</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Essentials</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../">Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../jwk/">JSON Web Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwt/">JSON Web Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jws/">JSON Web Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwe/">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">Algorithms</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Registry</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrations/">Migrations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/authlib/">Migrating from Authlib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/pyjwt/">Migrating from PyJWT</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Recipes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/">API References</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jws/">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwk/">JWK API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwt/">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../security/">Security</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../stability/">API stability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/structure/">Code structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/translation/">Translations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/authors/">Authors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/sponsors/">Sponsors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">Changelog</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>On this page</h3>
+    <ul>
+<li><a class="reference internal" href="#algorithms">Algorithms</a></li>
+<li><a class="reference internal" href="#headers">Headers</a><ul>
+<li><a class="reference internal" href="#type-checking">Type checking</a></li>
+<li><a class="reference internal" href="#critical-headers">Critical headers</a></li>
+<li><a class="reference internal" href="#additional-headers">Additional headers</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#registry-for-jwt">Registry for JWT</a></li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/guide/registry.rst">Edit this page</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../../">joserfc</a><span>/</span></li>
+      
+      <li><strong>Registry</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="registry">
+<span id="id1"></span><h1>Registry<a class="headerlink" href="#registry" title="Permalink to this heading">¶</a></h1>
+<p>The <code class="docutils literal notranslate"><span class="pre">registry</span></code> is specifically designed to store supported algorithms,
+allowed algorithms, registered header parameters, and provides methods
+to validate algorithms and headers.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>We’ll use <code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code> as our reference, but keep in mind that
+the behavior of <code class="docutils literal notranslate"><span class="pre">JWERegistry</span></code> is identical.</p>
+</div>
+<section id="algorithms">
+<h2>Algorithms<a class="headerlink" href="#algorithms" title="Permalink to this heading">¶</a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code> or <code class="docutils literal notranslate"><span class="pre">JWERegistry</span></code> serves as a storage for all supported
+algorithms in JWS or JWE. By default, it enforces the usage of recommended
+algorithms, ensuring a higher level of security.</p>
+<p>Find all the supported and recommended algorithms in:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../algorithms/#jws-algorithms"><span class="std std-ref">JSON Web Signature</span></a></p></li>
+<li><p><a class="reference internal" href="../algorithms/#jwe-algorithms"><span class="std std-ref">JSON Web Encryption</span></a></p></li>
+</ul>
+<p>You have the flexibility to create a custom registry tailored to your specific
+program requirements, allowing you to define and restrict the algorithms used.
+For instance, you can design a custom JWS registry that only permits the usage
+of <code class="docutils literal notranslate"><span class="pre">RS256</span></code> and <code class="docutils literal notranslate"><span class="pre">ES256</span></code> algorithms. This ensures that only these specific
+algorithms are allowed in your program.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.jws</span> <span class="kn">import</span> <span class="n">JWSRegistry</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">registry</span> <span class="o">=</span> <span class="n">JWSRegistry</span><span class="p">(</span><span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;RS256&quot;</span><span class="p">,</span> <span class="s2">&quot;ES256&quot;</span><span class="p">])</span>
+</span><span id="1-4"><span class="c1"># jws.serialize_compact(protected, payload, key, registry=registry)</span>
+</span></pre></div>
+</div>
+<p>An example of a custom JWE registry that only permits the usage of
+<code class="docutils literal notranslate"><span class="pre">{&quot;alg&quot;:</span> <span class="pre">&quot;A128KW&quot;,</span> <span class="pre">&quot;enc&quot;:</span> <span class="pre">&quot;A128GCM&quot;}</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.jwe</span> <span class="kn">import</span> <span class="n">JWERegistry</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">registry</span> <span class="o">=</span> <span class="n">JWERegistry</span><span class="p">(</span><span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;A128GCM&quot;</span><span class="p">])</span>
+</span><span id="1-4"><span class="c1"># jwe.encrypt_compact(protected, payload, key, registry=registry)</span>
+</span></pre></div>
+</div>
+</section>
+<section id="headers">
+<h2>Headers<a class="headerlink" href="#headers" title="Permalink to this heading">¶</a></h2>
+<p>By default, the <code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code> only permits the usage of registered header
+parameters. Additionally, it verifies the validity of the header parameter
+values before allowing their usage.</p>
+<section id="type-checking">
+<h3>Type checking<a class="headerlink" href="#type-checking" title="Permalink to this heading">¶</a></h3>
+<p>The header parameter registry for JWS and JWE performs an initial check on
+the value type.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">,</span> <span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="mi">123</span><span class="p">},</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-3"><span class="gt">Traceback (most recent call last):</span>
+</span><span id="1-4">  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+</span><span id="1-5">  File <span class="nb">&quot;$/joserfc/jws.py&quot;</span>, line <span class="m">98</span>, in <span class="n">serialize_compact</span>
+</span><span id="1-6"><span class="w">    </span><span class="n">registry</span><span class="o">.</span><span class="n">check_header</span><span class="p">(</span><span class="n">protected</span><span class="p">)</span>
+</span><span id="1-7">  File <span class="nb">&quot;$/joserfc/rfc7515/registry.py&quot;</span>, line <span class="m">63</span>, in <span class="n">check_header</span>
+</span><span id="1-8"><span class="w">    </span><span class="n">validate_registry_header</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header_registry</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
+</span><span id="1-9">  File <span class="nb">&quot;$/joserfc/registry.py&quot;</span>, line <span class="m">193</span>, in <span class="n">validate_registry_header</span>
+</span><span id="1-10"><span class="w">    </span><span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s1">&quot; in header </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+</span><span id="1-11"><span class="gr">ValueError</span>: <span class="n">&quot;kid&quot; in header must be a str</span>
+</span></pre></div>
+</div>
+<p>In the above example, <code class="docutils literal notranslate"><span class="pre">kid</span></code> MUST be a string instead of an integer. The default
+registry validates the <code class="docutils literal notranslate"><span class="pre">kid</span></code> before processing the serialization.</p>
+</section>
+<section id="critical-headers">
+<h3>Critical headers<a class="headerlink" href="#critical-headers" title="Permalink to this heading">¶</a></h3>
+<p>There is a special “crit” header parameter for JWS and JWE, which specifies
+the critical header parameters. These critical parameters are considered mandatory,
+indicating that they must be present. For example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">,</span> <span class="s2">&quot;crit&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;kid&quot;</span><span class="p">]},</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-3"><span class="gt">Traceback (most recent call last):</span>
+</span><span id="1-4">  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+</span><span id="1-5">  File <span class="nb">&quot;$/joserfc/jws.py&quot;</span>, line <span class="m">98</span>, in <span class="n">serialize_compact</span>
+</span><span id="1-6"><span class="w">    </span><span class="n">registry</span><span class="o">.</span><span class="n">check_header</span><span class="p">(</span><span class="n">protected</span><span class="p">)</span>
+</span><span id="1-7">  File <span class="nb">&quot;$/joserfc/rfc7515/registry.py&quot;</span>, line <span class="m">62</span>, in <span class="n">check_header</span>
+</span><span id="1-8"><span class="w">    </span><span class="n">check_crit_header</span><span class="p">(</span><span class="n">header</span><span class="p">)</span>
+</span><span id="1-9">  File <span class="nb">&quot;$/joserfc/registry.py&quot;</span>, line <span class="m">195</span>, in <span class="n">check_crit_header</span>
+</span><span id="1-10"><span class="w">    </span><span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s1">&quot; is a critical header&#39;</span><span class="p">)</span>
+</span><span id="1-11"><span class="gr">ValueError</span>: <span class="n">&quot;kid&quot; is a critical header</span>
+</span></pre></div>
+</div>
+<p>Since “kid” is listed as a critical (<code class="docutils literal notranslate"><span class="pre">crit</span></code>) header parameter, it is mandatory
+and must be included in the header.</p>
+</section>
+<section id="additional-headers">
+<h3>Additional headers<a class="headerlink" href="#additional-headers" title="Permalink to this heading">¶</a></h3>
+<p>By default, the registry for JWS and JWE only permits registered header parameters.
+Any additional header beyond those supported by the algorithm will result in an error.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">,</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="s2">&quot;hi&quot;</span><span class="p">},</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-3"><span class="gt">Traceback (most recent call last):</span>
+</span><span id="1-4">  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+</span><span id="1-5">  File <span class="nb">&quot;/home/lepture/authlib/joserfc/src/joserfc/jws.py&quot;</span>, line <span class="m">98</span>, in <span class="n">serialize_compact</span>
+</span><span id="1-6"><span class="w">    </span><span class="n">registry</span><span class="o">.</span><span class="n">check_header</span><span class="p">(</span><span class="n">protected</span><span class="p">)</span>
+</span><span id="1-7">  File <span class="nb">&quot;/home/lepture/authlib/joserfc/src/joserfc/rfc7515/registry.py&quot;</span>, line <span class="m">65</span>, in <span class="n">check_header</span>
+</span><span id="1-8"><span class="w">    </span><span class="n">check_supported_header</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">header_registry</span><span class="p">,</span> <span class="n">header</span><span class="p">)</span>
+</span><span id="1-9">  File <span class="nb">&quot;/home/lepture/authlib/joserfc/src/joserfc/registry.py&quot;</span>, line <span class="m">175</span>, in <span class="n">check_supported_header</span>
+</span><span id="1-10"><span class="w">    </span><span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Unsupported &quot;</span><span class="si">{</span><span class="n">unsupported_keys</span><span class="si">}</span><span class="s1"> in header&#39;</span><span class="p">)</span>
+</span><span id="1-11"><span class="gr">ValueError</span>: <span class="n">Unsupported {&#39;custom&#39;} in header</span>
+</span></pre></div>
+</div>
+<p>To resolve this error, you have two options. First, you can register the
+additional header parameters with the registry. This allows the registry
+to recognize and validate those parameters instead of raising an error.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jws</span> <span class="kn">import</span> <span class="n">JWSRegistry</span>
+</span><span id="1-3"><span class="kn">from</span> <span class="nn">joserfc.registry</span> <span class="kn">import</span> <span class="n">HeaderParameter</span>
+</span><span id="1-4">
+</span><span id="1-5"><span class="n">additional_header_registry</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="1-6">    <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="n">HeaderParameter</span><span class="p">(</span><span class="s2">&quot;Custom message&quot;</span><span class="p">,</span> <span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
+</span><span id="1-7"><span class="p">}</span>
+</span><span id="1-8"><span class="n">registry</span> <span class="o">=</span> <span class="n">JWSRegistry</span><span class="p">(</span><span class="n">additional_header_registry</span><span class="p">)</span>
+</span><span id="1-9">
+</span><span id="1-10"><span class="c1"># it will not raise any error</span>
+</span><span id="1-11"><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">,</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="s2">&quot;hi&quot;</span><span class="p">},</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="n">registry</span><span class="p">)</span>
+</span><span id="1-12">
+</span><span id="1-13"><span class="c1"># this will raise an error, because we &quot;custom&quot; is defined to be required</span>
+</span><span id="1-14"><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">},</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="n">registry</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>Alternatively, you can choose to disable the strict header checking altogether.
+By turning off strict header checking, the registry will no longer raise an
+error for unrecognized header parameters. However, please note that this approach
+may compromise the security and integrity of the token, so it should be used with caution.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">registry</span> <span class="o">=</span> <span class="n">JWSRegistry</span><span class="p">(</span><span class="n">strict_check_header</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="1-2"><span class="c1"># will not raise any error</span>
+</span><span id="1-3"><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">,</span> <span class="s2">&quot;custom&quot;</span><span class="p">:</span> <span class="s2">&quot;hi&quot;</span><span class="p">},</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="n">registry</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="registry-for-jwt">
+<h2>Registry for JWT<a class="headerlink" href="#registry-for-jwt" title="Permalink to this heading">¶</a></h2>
+<p>JSON Web Token (JWT) is built on top of <a class="reference internal" href="../jws/#jws"><span class="std std-ref">JSON Web Signature</span></a> or <a class="reference internal" href="../jwe/#jwe"><span class="std std-ref">JSON Web Encryption</span></a>. The <code class="docutils literal notranslate"><span class="pre">encode</span></code> and <code class="docutils literal notranslate"><span class="pre">decode</span></code>
+methods accept a <code class="docutils literal notranslate"><span class="pre">registry</span></code> parameter. Depending on the algorithm of the JWT, you need to
+decide whether to use <code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code> or <code class="docutils literal notranslate"><span class="pre">JWERegistry</span></code>.</p>
+</section>
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../algorithms/">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>Previous</span>
+        
+        <div class="title">Algorithms</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="../../migrations/">
+      <div class="page-info">
+        <span>Next</span>
+        <div class="title">Migrations</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script src="../../_static/shibuya.js"></script>
+    
+</body>
+</html>
