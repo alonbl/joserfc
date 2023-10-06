@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>JWS API - joserfc</title>
+    <link rel="index" title="索引" href="../../genindex/" /><link rel="search" title="搜索" href="../../search/" /><link rel="next" title="JWE API" href="../jwe/" /><link rel="prev" title="API 参考" href="../" />
+    <link rel="canonical" href="https://jose.authlib.org/zh/dev/api/jws/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/zh/dev/api/jws/"/>
+<meta property="og:title" content="JWS API"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="en" href="https://jose.authlib.org/en/dev/api/jws/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../../">
+      <img class="light-logo" src="../../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../../search/" method="get">
+  <input type="text" name="q" placeholder="搜索" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">翻译</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/api/jws/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/api/jws/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="切换到暗色模式" data-aria-dark="切换到亮色模式">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">开始上手</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/introduction/">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/">安装</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">必读文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/">教程</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jwk/">JSON Web Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jwt/">JSON Web Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jws/">JSON Web Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jwe/">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/algorithms/">算法</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/registry/">注册表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrations/">迁移</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/authlib/">从 Authlib 迁移到 joserfc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/pyjwt/">从 PyJWT 迁移到 joserfc</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">小技巧</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者文档</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../">API 参考</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwk/">JWK API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwt/">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../security/">安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../stability/">稳定性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">参与贡献</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/structure/">代码结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/translation/">翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/authors/">作者列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/sponsors/">赞助者</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">历史记录</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>该页内容</h3>
+    <ul>
+<li><a class="reference internal" href="#joserfc.jws.CompactSignature"><code class="docutils literal notranslate"><span class="pre">CompactSignature</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.FlattenedJSONSerialization"><code class="docutils literal notranslate"><span class="pre">FlattenedJSONSerialization</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.FlattenedJSONSignature"><code class="docutils literal notranslate"><span class="pre">FlattenedJSONSignature</span></code></a><ul>
+<li><a class="reference internal" href="#joserfc.jws.FlattenedJSONSignature.flattened"><code class="docutils literal notranslate"><span class="pre">FlattenedJSONSignature.flattened</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.FlattenedJSONSignature.member"><code class="docutils literal notranslate"><span class="pre">FlattenedJSONSignature.member</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.FlattenedJSONSignature.payload"><code class="docutils literal notranslate"><span class="pre">FlattenedJSONSignature.payload</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#joserfc.jws.GeneralJSONSerialization"><code class="docutils literal notranslate"><span class="pre">GeneralJSONSerialization</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.GeneralJSONSignature"><code class="docutils literal notranslate"><span class="pre">GeneralJSONSignature</span></code></a><ul>
+<li><a class="reference internal" href="#joserfc.jws.GeneralJSONSignature.flattened"><code class="docutils literal notranslate"><span class="pre">GeneralJSONSignature.flattened</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.GeneralJSONSignature.members"><code class="docutils literal notranslate"><span class="pre">GeneralJSONSignature.members</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.GeneralJSONSignature.payload"><code class="docutils literal notranslate"><span class="pre">GeneralJSONSignature.payload</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#joserfc.jws.HeaderDict"><code class="docutils literal notranslate"><span class="pre">HeaderDict</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.HeaderMember"><code class="docutils literal notranslate"><span class="pre">HeaderMember</span></code></a><ul>
+<li><a class="reference internal" href="#joserfc.jws.HeaderMember.header"><code class="docutils literal notranslate"><span class="pre">HeaderMember.header</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.HeaderMember.protected"><code class="docutils literal notranslate"><span class="pre">HeaderMember.protected</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#joserfc.jws.JWSAlgModel"><code class="docutils literal notranslate"><span class="pre">JWSAlgModel</span></code></a><ul>
+<li><a class="reference internal" href="#joserfc.jws.JWSAlgModel.sign"><code class="docutils literal notranslate"><span class="pre">JWSAlgModel.sign()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.JWSAlgModel.verify"><code class="docutils literal notranslate"><span class="pre">JWSAlgModel.verify()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#joserfc.jws.JWSRegistry"><code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code></a><ul>
+<li><a class="reference internal" href="#joserfc.jws.JWSRegistry.check_header"><code class="docutils literal notranslate"><span class="pre">JWSRegistry.check_header()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.JWSRegistry.get_alg"><code class="docutils literal notranslate"><span class="pre">JWSRegistry.get_alg()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.JWSRegistry.register"><code class="docutils literal notranslate"><span class="pre">JWSRegistry.register()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#joserfc.jws.deserialize_compact"><code class="docutils literal notranslate"><span class="pre">deserialize_compact()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.deserialize_json"><code class="docutils literal notranslate"><span class="pre">deserialize_json()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.detach_content"><code class="docutils literal notranslate"><span class="pre">detach_content()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.extract_compact"><code class="docutils literal notranslate"><span class="pre">extract_compact()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.serialize_compact"><code class="docutils literal notranslate"><span class="pre">serialize_compact()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.serialize_json"><code class="docutils literal notranslate"><span class="pre">serialize_json()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jws.validate_compact"><code class="docutils literal notranslate"><span class="pre">validate_compact()</span></code></a></li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/api/jws.rst">编辑此页面</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../../">joserfc</a><span>/</span></li>
+      
+      <li><a href="../">API 参考</a><span>/</span></li>
+      
+      <li><strong>JWS API</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="jws-api">
+<span id="id1"></span><h1>JWS API<a class="headerlink" href="#jws-api" title="此标题的永久链接">¶</a></h1>
+<p>This part of the documentation covers all the interfaces of <code class="docutils literal notranslate"><span class="pre">joserfc.jws</span></code>.</p>
+<span class="target" id="module-joserfc.jws"></span><dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.CompactSignature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">CompactSignature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#joserfc.jws.CompactSignature" title="永久链接至目标">¶</a></dt>
+<dd><p>JSON Web Signature object for compact mode. This object is used to
+represent the JWS instance.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.FlattenedJSONSerialization">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">FlattenedJSONSerialization</span></span><a class="headerlink" href="#joserfc.jws.FlattenedJSONSerialization" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.FlattenedJSONSignature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">FlattenedJSONSignature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">member</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.HeaderMember" title="joserfc.rfc7515.model.HeaderMember"><span class="pre">HeaderMember</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#joserfc.jws.FlattenedJSONSignature" title="永久链接至目标">¶</a></dt>
+<dd><p>&quot;JSON Signature object that represents a flattened JSON serialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.FlattenedJSONSignature.flattened">
+<span class="sig-name descname"><span class="pre">flattened</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#joserfc.jws.FlattenedJSONSignature.flattened" title="永久链接至目标">¶</a></dt>
+<dd><p>mark it as flattened</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.FlattenedJSONSignature.member">
+<span class="sig-name descname"><span class="pre">member</span></span><a class="headerlink" href="#joserfc.jws.FlattenedJSONSignature.member" title="永久链接至目标">¶</a></dt>
+<dd><p>the only header member</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.FlattenedJSONSignature.payload">
+<span class="sig-name descname"><span class="pre">payload</span></span><a class="headerlink" href="#joserfc.jws.FlattenedJSONSignature.payload" title="永久链接至目标">¶</a></dt>
+<dd><p>payload content</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.GeneralJSONSerialization">
+<em class="property"><span class="pre">final</span><span class="w"> </span><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">GeneralJSONSerialization</span></span><a class="headerlink" href="#joserfc.jws.GeneralJSONSerialization" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.GeneralJSONSignature">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">GeneralJSONSignature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">members</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#joserfc.jws.HeaderMember" title="joserfc.rfc7515.model.HeaderMember"><span class="pre">HeaderMember</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#joserfc.jws.GeneralJSONSignature" title="永久链接至目标">¶</a></dt>
+<dd><p>&quot;JSON Signature object that represents a general JSON serialization.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.GeneralJSONSignature.flattened">
+<span class="sig-name descname"><span class="pre">flattened</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">False</span></em><a class="headerlink" href="#joserfc.jws.GeneralJSONSignature.flattened" title="永久链接至目标">¶</a></dt>
+<dd><p>mark it as not flattened (general)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.GeneralJSONSignature.members">
+<span class="sig-name descname"><span class="pre">members</span></span><a class="headerlink" href="#joserfc.jws.GeneralJSONSignature.members" title="永久链接至目标">¶</a></dt>
+<dd><p>a list of header members</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.GeneralJSONSignature.payload">
+<span class="sig-name descname"><span class="pre">payload</span></span><a class="headerlink" href="#joserfc.jws.GeneralJSONSignature.payload" title="永久链接至目标">¶</a></dt>
+<dd><p>payload content</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.HeaderDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">HeaderDict</span></span><a class="headerlink" href="#joserfc.jws.HeaderDict" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.HeaderMember">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">HeaderMember</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#joserfc.jws.HeaderMember" title="永久链接至目标">¶</a></dt>
+<dd><p>A header member of the JSON signature. It is combined with protected header,
+and unprotected header.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.HeaderMember.header">
+<span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#joserfc.jws.HeaderMember.header" title="永久链接至目标">¶</a></dt>
+<dd><p>unprotected header</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jws.HeaderMember.protected">
+<span class="sig-name descname"><span class="pre">protected</span></span><a class="headerlink" href="#joserfc.jws.HeaderMember.protected" title="永久链接至目标">¶</a></dt>
+<dd><p>protected header</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.JWSAlgModel">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">JWSAlgModel</span></span><a class="headerlink" href="#joserfc.jws.JWSAlgModel" title="永久链接至目标">¶</a></dt>
+<dd><p>Interface for JWS algorithm. JWA specification (RFC7518) SHOULD
+implement the algorithms for JWS with this base implementation.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jws.JWSAlgModel.sign">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#joserfc.jws.JWSAlgModel.sign" title="永久链接至目标">¶</a></dt>
+<dd><p>Sign the text msg with a private/sign key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> -- message bytes to be signed</p></li>
+<li><p><strong>key</strong> -- private key to sign the message</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>bytes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jws.JWSAlgModel.verify">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">verify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">msg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#joserfc.jws.JWSAlgModel.verify" title="永久链接至目标">¶</a></dt>
+<dd><p>Verify the signature of text msg with a public/verify key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>msg</strong> -- message bytes to be signed</p></li>
+<li><p><strong>sig</strong> -- result signature to be compared</p></li>
+<li><p><strong>key</strong> -- public key to verify the signature</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>boolean</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jws.JWSRegistry">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">JWSRegistry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header_registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">HeaderParameter</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict_check_header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#joserfc.jws.JWSRegistry" title="永久链接至目标">¶</a></dt>
+<dd><p>A registry for JSON Web Signature to keep all the supported algorithms.
+An instance of <code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code> is usually used together with methods in
+<code class="docutils literal notranslate"><span class="pre">joserfc.jws</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header_registry</strong> -- extra header parameters registry</p></li>
+<li><p><strong>algorithms</strong> -- allowed algorithms to be used</p></li>
+<li><p><strong>strict_check_header</strong> -- only allow header key in the registry to be used</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jws.JWSRegistry.check_header">
+<span class="sig-name descname"><span class="pre">check_header</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#joserfc.jws.JWSRegistry.check_header" title="永久链接至目标">¶</a></dt>
+<dd><p>Check and validate the fields in header part of a JWS object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jws.JWSRegistry.get_alg">
+<span class="sig-name descname"><span class="pre">get_alg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jws.JWSAlgModel" title="joserfc.rfc7515.model.JWSAlgModel"><span class="pre">JWSAlgModel</span></a></span></span><a class="headerlink" href="#joserfc.jws.JWSRegistry.get_alg" title="永久链接至目标">¶</a></dt>
+<dd><p>Get the allowed algorithm instance of the given name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> -- value of the <code class="docutils literal notranslate"><span class="pre">alg</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">HS256</span></code>, <code class="docutils literal notranslate"><span class="pre">RS256</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jws.JWSRegistry.register">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">register</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSAlgModel" title="joserfc.rfc7515.model.JWSAlgModel"><span class="pre">JWSAlgModel</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#joserfc.jws.JWSRegistry.register" title="永久链接至目标">¶</a></dt>
+<dd><p>Register a given JWS algorithm instance to the registry.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jws.deserialize_compact">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">deserialize_compact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jws.CompactSignature" title="joserfc.rfc7515.model.CompactSignature"><span class="pre">CompactSignature</span></a></span></span><a class="headerlink" href="#joserfc.jws.deserialize_compact" title="永久链接至目标">¶</a></dt>
+<dd><p>Extract and validate the JWS Compact Serialization (in string, or bytes)
+with the given key. An JWE Compact Serialization looks like:</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">line breaks for display purposes only</span><a class="headerlink" href="#id2" title="此代码块的永久链接">¶</a></div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span id="1-1">eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9
+</span><span id="1-2">.
+</span><span id="1-3">eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFt
+</span><span id="1-4">cGxlLmNvbS9pc19yb290Ijp0cnVlfQ
+</span><span id="1-5">.
+</span><span id="1-6">dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
+</span></pre></div>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> -- a string (or bytes) of the JWS Compact Serialization</p></li>
+<li><p><strong>public_key</strong> -- a flexible public key to verify the signature</p></li>
+<li><p><strong>algorithms</strong> -- a list of allowed algorithms</p></li>
+<li><p><strong>registry</strong> -- a JWSRegistry to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>object of the <code class="docutils literal notranslate"><span class="pre">CompactSignature</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jws.deserialize_json">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">deserialize_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.GeneralJSONSerialization" title="joserfc.rfc7515.types.GeneralJSONSerialization"><span class="pre">GeneralJSONSerialization</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jws.GeneralJSONSignature" title="joserfc.rfc7515.model.GeneralJSONSignature"><span class="pre">GeneralJSONSignature</span></a></span></span><a class="headerlink" href="#joserfc.jws.deserialize_json" title="永久链接至目标">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">deserialize_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.FlattenedJSONSerialization" title="joserfc.rfc7515.types.FlattenedJSONSerialization"><span class="pre">FlattenedJSONSerialization</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jws.FlattenedJSONSignature" title="joserfc.rfc7515.model.FlattenedJSONSignature"><span class="pre">FlattenedJSONSignature</span></a></span></span></dt>
+<dd><p>Extract and validate the JWS (in string) with the given key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> -- a dict of the JSON signature</p></li>
+<li><p><strong>public_key</strong> -- a flexible public key to verify the signature</p></li>
+<li><p><strong>algorithms</strong> -- a list of allowed algorithms</p></li>
+<li><p><strong>registry</strong> -- a JWSRegistry to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>object of the SignatureData</p>
+</dd>
+<dt class="field-odd">Raise<span class="colon">:</span></dt>
+<dd class="field-odd"><p>ValueError or BadSignatureError</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jws.detach_content">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">detach_content</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DetachValue</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DetachValue</span></span></span><a class="headerlink" href="#joserfc.jws.detach_content" title="永久链接至目标">¶</a></dt>
+<dd><p>In some contexts, it is useful to integrity-protect content that is
+not itself contained in a JWS. This method is an implementation of
+<a class="reference external" href="https://www.rfc-editor.org/rfc/rfc7515#appendix-F">https://www.rfc-editor.org/rfc/rfc7515#appendix-F</a></p>
+<p>It is used to detach the content of the compact and JSON serialization.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">encoded_text</span> <span class="o">=</span> <span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">},</span> <span class="sa">b</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">detach_content</span><span class="p">(</span><span class="n">encoded_text</span><span class="p">)</span>
+</span><span id="1-4"><span class="go">&#39;eyJhbGciOiJIUzI1NiJ9..UYmO_lPAY5V0Wf4KZsfhiYs1SxqXPhxvjuYqellDV5A&#39;</span>
+</span></pre></div>
+</div>
+<p>You can also detach the JSON serialization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">jws</span><span class="o">.</span><span class="n">serialize_json</span><span class="p">({</span><span class="s2">&quot;protected&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">}},</span> <span class="sa">b</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">detach_content</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+</span><span id="1-3"><span class="go">{</span>
+</span><span id="1-4"><span class="go">    &#39;payload&#39;: &#39;&#39;,</span>
+</span><span id="1-5"><span class="go">    &#39;signature&#39;: &#39;UYmO_lPAY5V0Wf4KZsfhiYs1SxqXPhxvjuYqellDV5A&#39;,</span>
+</span><span id="1-6"><span class="go">    &#39;protected&#39;: &#39;eyJhbGciOiJIUzI1NiJ9&#39;</span>
+</span><span id="1-7"><span class="go">}</span>
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jws.extract_compact">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">extract_compact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jws.CompactSignature" title="joserfc.rfc7515.model.CompactSignature"><span class="pre">CompactSignature</span></a></span></span><a class="headerlink" href="#joserfc.jws.extract_compact" title="永久链接至目标">¶</a></dt>
+<dd><p>Extract the JWS Compact Serialization from bytes to object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> -- JWS in bytes</p>
+</dd>
+<dt class="field-even">Raise<span class="colon">:</span></dt>
+<dd class="field-even"><p>DecodeError</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jws.serialize_compact">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">serialize_compact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#joserfc.jws.serialize_compact" title="永久链接至目标">¶</a></dt>
+<dd><p>Generate a JWS Compact Serialization. The JWS Compact Serialization
+represents digitally signed or MACed content as a compact, URL-safe
+string, per Section 7.1.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span id="1-1">BASE64URL(UTF8(JWS Protected Header)) || &#39;.&#39; ||
+</span><span id="1-2">BASE64URL(JWS Payload) || &#39;.&#39; ||
+</span><span id="1-3">BASE64URL(JWS Signature)
+</span></pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>protected</strong> -- protected header part of the JWS, in dict</p></li>
+<li><p><strong>payload</strong> -- payload data of the JWS, in bytes</p></li>
+<li><p><strong>private_key</strong> -- a flexible private key to sign the signature</p></li>
+<li><p><strong>algorithms</strong> -- a list of allowed algorithms</p></li>
+<li><p><strong>registry</strong> -- a JWSRegistry to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">返回<span class="colon">:</span></dt>
+<dd class="field-even"><p>JWS in str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jws.serialize_json">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">serialize_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">members</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#joserfc.jws.HeaderDict" title="joserfc.rfc7515.types.HeaderDict"><span class="pre">HeaderDict</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jws.GeneralJSONSerialization" title="joserfc.rfc7515.types.GeneralJSONSerialization"><span class="pre">GeneralJSONSerialization</span></a></span></span><a class="headerlink" href="#joserfc.jws.serialize_json" title="永久链接至目标">¶</a></dt>
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">serialize_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">members</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.HeaderDict" title="joserfc.rfc7515.types.HeaderDict"><span class="pre">HeaderDict</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">private_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jws.FlattenedJSONSerialization" title="joserfc.rfc7515.types.FlattenedJSONSerialization"><span class="pre">FlattenedJSONSerialization</span></a></span></span></dt>
+<dd><p>Generate a JWS JSON Serialization (in dict). The JWS JSON Serialization
+represents digitally signed or MACed content as a JSON object. This representation
+is neither optimized for compactness nor URL-safe.</p>
+<p>A general JWS JSON Serialization contains:</p>
+<dl class="simple">
+<dt>payload</dt><dd><p>The &quot;payload&quot; member MUST be present and contain the value
+BASE64URL(JWS Payload).</p>
+</dd>
+<dt>signatures</dt><dd><p>The &quot;signatures&quot; member value MUST be an array of JSON objects.
+Each object represents a signature or MAC over the JWS Payload and
+the JWS Protected Header.</p>
+</dd>
+</dl>
+<p>A flatten JWS JSON Serialization looks like:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span id="1-1">{
+</span><span id="1-2">    &quot;payload&quot;:&quot;&lt;payload contents&gt;&quot;,
+</span><span id="1-3">    &quot;protected&quot;:&quot;&lt;integrity-protected header contents&gt;&quot;,
+</span><span id="1-4">    &quot;header&quot;:&lt;non-integrity-protected header contents&gt;,
+</span><span id="1-5">    &quot;signature&quot;:&quot;&lt;signature contents&gt;&quot;
+</span><span id="1-6">}
+</span></pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jws.validate_compact">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jws.</span></span><span class="sig-name descname"><span class="pre">validate_compact</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.CompactSignature" title="joserfc.rfc7515.model.CompactSignature"><span class="pre">CompactSignature</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">public_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#joserfc.jws.validate_compact" title="永久链接至目标">¶</a></dt>
+<dd><p>Validate the JWS Compact Serialization with the given key.
+This method is usually used together with <code class="docutils literal notranslate"><span class="pre">extract_compact</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>obj</strong> -- object of the JWS Compact Serialization</p></li>
+<li><p><strong>public_key</strong> -- a flexible public key to verify the signature</p></li>
+<li><p><strong>algorithms</strong> -- a list of allowed algorithms</p></li>
+<li><p><strong>registry</strong> -- a JWSRegistry to use</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>上一章</span>
+        
+        <div class="title">API 参考</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="../jwe/">
+      <div class="page-info">
+        <span>下一章</span>
+        <div class="title">JWE API</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script src="../../_static/shibuya.js"></script>
+    
+</body>
+</html>

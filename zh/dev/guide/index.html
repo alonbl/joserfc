@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>教程 - joserfc</title>
+    <link rel="index" title="索引" href="../genindex/" /><link rel="search" title="搜索" href="../search/" /><link rel="next" title="JSON Web Key" href="jwk/" /><link rel="prev" title="安装" href="../install/" />
+    <link rel="canonical" href="https://jose.authlib.org/zh/dev/guide/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/zh/dev/guide/"/>
+<meta property="og:title" content="教程"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="description" content="Get started with joserfc module to encode and decode JSON Web Token (JWT)."/>
+<meta property="og:description" content="Get started with joserfc module to encode and decode JSON Web Token (JWT)."/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="en" href="https://jose.authlib.org/en/dev/guide/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../">
+      <img class="light-logo" src="../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../search/" method="get">
+  <input type="text" name="q" placeholder="搜索" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">翻译</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/guide/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/guide/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="切换到暗色模式" data-aria-dark="切换到亮色模式">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">开始上手</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction/">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install/">安装</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">必读文档</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">教程</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="jwk/">JSON Web Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jwt/">JSON Web Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jws/">JSON Web Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="jwe/">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="algorithms/">算法</a></li>
+<li class="toctree-l1"><a class="reference internal" href="registry/">注册表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../migrations/">迁移</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../migrations/authlib/">从 Authlib 迁移到 joserfc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../migrations/pyjwt/">从 PyJWT 迁移到 joserfc</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">小技巧</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/">API 参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/jws/">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/jwk/">JWK API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/jwt/">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../security/">安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../stability/">稳定性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing/">参与贡献</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/structure/">代码结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/translation/">翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/authors/">作者列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributing/sponsors/">赞助者</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog/">历史记录</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>该页内容</h3>
+    <ul>
+<li><a class="reference internal" href="#encode-and-decode-jwt">JWT &#30340;&#32534;&#30721;&#19982;&#35299;&#30721;</a></li>
+<li><a class="reference internal" href="#import-and-generate-jwk">JWK &#30340;&#23548;&#20837;&#19982;&#23548;&#20986;</a></li>
+<li><a class="reference internal" href="#dive-deep">&#28145;&#20837;&#20102;&#35299;</a></li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/guide/index.rst">编辑此页面</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../">joserfc</a><span>/</span></li>
+      
+      <li><strong>教程</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="guide">
+<h1>教程<a class="headerlink" href="#guide" title="此标题的永久链接">¶</a></h1>
+<p>本章节提供了关于如何开始使用 <code class="docutils literal notranslate"><span class="pre">joserfc</span></code> 并进行 JWT 编码和解码的快速概述。</p>
+<section id="encode-and-decode-jwt">
+<h2>JWT 的编码与解码<a class="headerlink" href="#encode-and-decode-jwt" title="此标题的永久链接">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwt</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">encoded_jwt</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">encode</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">},</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">encoded_jwt</span>
+</span><span id="1-4"><span class="go">&#39;eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJrZXkiOiJ2YWx1ZSJ9.FG-8UppwHaFp1LgRYQQeS6EDQF7_6-bMFegNucHjmWg&#39;</span>
+</span><span id="1-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">token</span> <span class="o">=</span> <span class="n">jwt</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">encoded_jwt</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-6"><span class="gp">&gt;&gt;&gt; </span><span class="n">token</span><span class="o">.</span><span class="n">header</span>
+</span><span id="1-7"><span class="go">{&#39;alg&#39;: &#39;HS256&#39;, &#39;typ&#39;: &#39;JWT&#39;}</span>
+</span><span id="1-8"><span class="gp">&gt;&gt;&gt; </span><span class="n">token</span><span class="o">.</span><span class="n">claims</span>
+</span><span id="1-9"><span class="go">{&#39;key&#39;: &#39;value&#39;}</span>
+</span></pre></div>
+</div>
+<p>您可以在下一章节中了解 <a class="reference internal" href="jwt/#jwt"><span class="std std-ref">JSON Web Token</span></a> 的详细信息。</p>
+</section>
+<section id="import-and-generate-jwk">
+<h2>JWK 的导入与导出<a class="headerlink" href="#import-and-generate-jwk" title="此标题的永久链接">¶</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">RSAKey</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">rsa_key</span> <span class="o">=</span> <span class="n">RSAKey</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="mi">512</span><span class="p">)</span>
+</span><span id="1-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">rsa_key</span><span class="o">.</span><span class="n">as_pem</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="1-4"><span class="go">b&#39;-----BEGIN PRIVATE KEY-----\n....&#39;</span>
+</span><span id="1-5"><span class="gp">&gt;&gt;&gt; </span><span class="n">rsa_key</span><span class="o">.</span><span class="n">as_pem</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="1-6"><span class="go">b&#39;-----BEGIN PUBLIC KEY-----\n...&#39;</span>
+</span><span id="1-7"><span class="gp">&gt;&gt;&gt; </span><span class="n">rsa_key</span><span class="o">.</span><span class="n">as_dict</span><span class="p">(</span><span class="n">private</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</span><span id="1-8"><span class="go">{</span>
+</span><span id="1-9"><span class="go">  &#39;n&#39;: &#39;s6DoAL_A4EZ9pQFemuFtUPxjuPxyZC_1_...&#39;,</span>
+</span><span id="1-10"><span class="go">  &#39;e&#39;: &#39;AQAB&#39;, &#39;kty&#39;: &#39;RSA&#39;, &#39;kid&#39;: &#39;Y9-Lx9yk...&#39;</span>
+</span><span id="1-11"><span class="go">}</span>
+</span></pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">RSAKey</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your-rsa-key.pem&quot;</span><span class="p">)</span>
+</span><span id="1-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">pem_data</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+</span><span id="1-4"><span class="gp">&gt;&gt;&gt; </span><span class="n">pem_data</span>
+</span><span id="1-5"><span class="go">&#39;-----BEGIN PUBLIC KEY-----\n...&#39;</span>
+</span><span id="1-6"><span class="gp">&gt;&gt;&gt; </span><span class="n">rsa_key</span> <span class="o">=</span> <span class="n">RSAKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="n">pem_data</span><span class="p">)</span>
+</span><span id="1-7"><span class="gp">&gt;&gt;&gt; </span><span class="n">rsa_key</span><span class="o">.</span><span class="n">as_pem</span><span class="p">()</span>
+</span><span id="1-8"><span class="go">b&#39;-----BEGIN PUBLIC KEY-----\n...&#39;</span>
+</span></pre></div>
+</div>
+<p>您可以在下一章节中了解 <a class="reference internal" href="jwk/#jwk"><span class="std std-ref">JSON Web Key</span></a> 的详细信息。</p>
+</section>
+<section id="dive-deep">
+<h2>深入了解<a class="headerlink" href="#dive-deep" title="此标题的永久链接">¶</a></h2>
+<p>接下来，详细学习下面的每个模块。</p>
+<div class="sd-container-fluid sd-sphinx-override sd-mb-4 docutils">
+<div class="sd-row sd-row-cols-2 sd-row-cols-xs-2 sd-row-cols-sm-2 sd-row-cols-md-2 sd-row-cols-lg-2 docutils">
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+JSON Web Key</div>
+<p class="sd-card-text">学习如何使用 <code class="docutils literal notranslate"><span class="pre">OctKey</span></code>、<code class="docutils literal notranslate"><span class="pre">RSAKey</span></code>、<code class="docutils literal notranslate"><span class="pre">ECKey</span></code>、<code class="docutils literal notranslate"><span class="pre">OKPKey</span></code> 以及 JSON Web Key Set。</p>
+</div>
+<a class="sd-stretched-link reference internal" href="jwk/#jwk"><span class="std std-ref"></span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+JSON Web Token</div>
+<p class="sd-card-text">JSON Web Token (JWT) 本质上是一种 <a class="reference internal" href="jws/#jws"><span class="std std-ref">JSON Web Signature</span></a> 或者 <a class="reference internal" href="jwe/#jwe"><span class="std std-ref">JSON Web Encryption</span></a>。</p>
+</div>
+<a class="sd-stretched-link reference internal" href="jwt/#jwt"><span class="std std-ref"></span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+JSON Web Signature</div>
+<p class="sd-card-text">通常我们见到的 <a class="reference internal" href="jwt/#jwt"><span class="std std-ref">JSON Web Token</span></a> 都是基于 <a class="reference internal" href="jws/#jws"><span class="std std-ref">JSON Web Signature</span></a> 的紧凑序列化编码。</p>
+</div>
+<a class="sd-stretched-link reference internal" href="jws/#jws"><span class="std std-ref"></span></a></div>
+</div>
+<div class="sd-col sd-d-flex-row docutils">
+<div class="sd-card sd-sphinx-override sd-w-100 sd-shadow-sm sd-card-hover docutils">
+<div class="sd-card-body docutils">
+<div class="sd-card-title sd-font-weight-bold docutils">
+JSON Web Encryption</div>
+<p class="sd-card-text">JSON Web Encryption (JWE) represents encrypted content using JSON-based data structures.</p>
+</div>
+<a class="sd-stretched-link reference internal" href="jwe/#jwe"><span class="std std-ref"></span></a></div>
+</div>
+</div>
+</div>
+<div class="toctree-wrapper compound">
+</div>
+</section>
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../install/">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>上一章</span>
+        
+        <div class="title">安装</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="jwk/">
+      <div class="page-info">
+        <span>下一章</span>
+        <div class="title">JSON Web Key</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+      <script src="../_static/doctools.js"></script>
+      <script src="../_static/sphinx_highlight.js"></script>
+      <script src="../_static/clipboard.min.js"></script>
+      <script src="../_static/copybutton.js"></script>
+      <script src="../_static/design-tabs.js"></script>
+      <script src="../_static/shibuya.js"></script>
+    
+</body>
+</html>

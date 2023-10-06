@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>JWT API - joserfc</title>
+    <link rel="index" title="索引" href="../../genindex/" /><link rel="search" title="搜索" href="../../search/" /><link rel="next" title="安全" href="../../security/" /><link rel="prev" title="JWK API" href="../jwk/" />
+    <link rel="canonical" href="https://jose.authlib.org/zh/dev/api/jwt/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/zh/dev/api/jwt/"/>
+<meta property="og:title" content="JWT API"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="en" href="https://jose.authlib.org/en/dev/api/jwt/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../../">
+      <img class="light-logo" src="../../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../../search/" method="get">
+  <input type="text" name="q" placeholder="搜索" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">翻译</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/api/jwt/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/api/jwt/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="切换到暗色模式" data-aria-dark="切换到亮色模式">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">开始上手</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/introduction/">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/">安装</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">必读文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/">教程</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jwk/">JSON Web Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jwt/">JSON Web Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jws/">JSON Web Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../guide/jwe/">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/algorithms/">算法</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../guide/registry/">注册表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrations/">迁移</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/authlib/">从 Authlib 迁移到 joserfc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/pyjwt/">从 PyJWT 迁移到 joserfc</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">小技巧</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者文档</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../">API 参考</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../jws/">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwk/">JWK API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../security/">安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../stability/">稳定性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">参与贡献</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/structure/">代码结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/translation/">翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/authors/">作者列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/sponsors/">赞助者</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">历史记录</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>该页内容</h3>
+    <ul>
+<li><a class="reference internal" href="#joserfc.jwt.ClaimsOption"><code class="docutils literal notranslate"><span class="pre">ClaimsOption</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jwt.JWTClaimsRegistry"><code class="docutils literal notranslate"><span class="pre">JWTClaimsRegistry</span></code></a><ul>
+<li><a class="reference internal" href="#joserfc.jwt.JWTClaimsRegistry.validate_aud"><code class="docutils literal notranslate"><span class="pre">JWTClaimsRegistry.validate_aud()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jwt.JWTClaimsRegistry.validate_exp"><code class="docutils literal notranslate"><span class="pre">JWTClaimsRegistry.validate_exp()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jwt.JWTClaimsRegistry.validate_iat"><code class="docutils literal notranslate"><span class="pre">JWTClaimsRegistry.validate_iat()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jwt.JWTClaimsRegistry.validate_nbf"><code class="docutils literal notranslate"><span class="pre">JWTClaimsRegistry.validate_nbf()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#joserfc.jwt.Token"><code class="docutils literal notranslate"><span class="pre">Token</span></code></a><ul>
+<li><a class="reference internal" href="#joserfc.jwt.Token.claims"><code class="docutils literal notranslate"><span class="pre">Token.claims</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jwt.Token.header"><code class="docutils literal notranslate"><span class="pre">Token.header</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#joserfc.jwt.check_sensitive_data"><code class="docutils literal notranslate"><span class="pre">check_sensitive_data()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jwt.decode"><code class="docutils literal notranslate"><span class="pre">decode()</span></code></a></li>
+<li><a class="reference internal" href="#joserfc.jwt.encode"><code class="docutils literal notranslate"><span class="pre">encode()</span></code></a></li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/api/jwt.rst">编辑此页面</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../../">joserfc</a><span>/</span></li>
+      
+      <li><a href="../">API 参考</a><span>/</span></li>
+      
+      <li><strong>JWT API</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="jwt-api">
+<span id="id1"></span><h1>JWT API<a class="headerlink" href="#jwt-api" title="此标题的永久链接">¶</a></h1>
+<p>This part of the documentation covers all the interfaces of <code class="docutils literal notranslate"><span class="pre">joserfc.jwt</span></code>.</p>
+<span class="target" id="module-joserfc.jwt"></span><dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jwt.ClaimsOption">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jwt.</span></span><span class="sig-name descname"><span class="pre">ClaimsOption</span></span><a class="headerlink" href="#joserfc.jwt.ClaimsOption" title="永久链接至目标">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jwt.JWTClaimsRegistry">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jwt.</span></span><span class="sig-name descname"><span class="pre">JWTClaimsRegistry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">now</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">leeway</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#joserfc.jwt.ClaimsOption" title="joserfc.rfc7519.registry.ClaimsOption"><span class="pre">ClaimsOption</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#joserfc.jwt.JWTClaimsRegistry" title="永久链接至目标">¶</a></dt>
+<dd><dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jwt.JWTClaimsRegistry.validate_aud">
+<span class="sig-name descname"><span class="pre">validate_aud</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#joserfc.jwt.JWTClaimsRegistry.validate_aud" title="永久链接至目标">¶</a></dt>
+<dd><p>The &quot;aud&quot; (audience) claim identifies the recipients that the JWT is
+intended for.  Each principal intended to process the JWT MUST
+identify itself with a value in the audience claim.  If the principal
+processing the claim does not identify itself with a value in the
+&quot;aud&quot; claim when this claim is present, then the JWT MUST be
+rejected.  In the general case, the &quot;aud&quot; value is an array of
+case-sensitive strings, each containing a StringOrURI value.  In the
+special case when the JWT has one audience, the &quot;aud&quot; value MAY be a
+single case-sensitive string containing a StringOrURI value.  The
+interpretation of audience values is generally application specific.
+Use of this claim is OPTIONAL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jwt.JWTClaimsRegistry.validate_exp">
+<span class="sig-name descname"><span class="pre">validate_exp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#joserfc.jwt.JWTClaimsRegistry.validate_exp" title="永久链接至目标">¶</a></dt>
+<dd><p>The &quot;exp&quot; (expiration time) claim identifies the expiration time on
+or after which the JWT MUST NOT be accepted for processing.  The
+processing of the &quot;exp&quot; claim requires that the current date/time
+MUST be before the expiration date/time listed in the &quot;exp&quot; claim.
+Implementers MAY provide for some small leeway, usually no more than
+a few minutes, to account for clock skew.  Its value MUST be a number
+containing a NumericDate value.  Use of this claim is OPTIONAL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jwt.JWTClaimsRegistry.validate_iat">
+<span class="sig-name descname"><span class="pre">validate_iat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#joserfc.jwt.JWTClaimsRegistry.validate_iat" title="永久链接至目标">¶</a></dt>
+<dd><p>The &quot;iat&quot; (issued at) claim identifies the time at which the JWT was
+issued.  This claim can be used to determine the age of the JWT.  Its
+value MUST be a number containing a NumericDate value.  Use of this
+claim is OPTIONAL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="joserfc.jwt.JWTClaimsRegistry.validate_nbf">
+<span class="sig-name descname"><span class="pre">validate_nbf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#joserfc.jwt.JWTClaimsRegistry.validate_nbf" title="永久链接至目标">¶</a></dt>
+<dd><p>The &quot;nbf&quot; (not before) claim identifies the time before which the JWT
+MUST NOT be accepted for processing.  The processing of the &quot;nbf&quot;
+claim requires that the current date/time MUST be after or equal to
+the not-before date/time listed in the &quot;nbf&quot; claim.  Implementers MAY
+provide for some small leeway, usually no more than a few minutes, to
+account for clock skew.  Its value MUST be a number containing a
+NumericDate value.  Use of this claim is OPTIONAL.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="joserfc.jwt.Token">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">joserfc.jwt.</span></span><span class="sig-name descname"><span class="pre">Token</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#joserfc.jwt.Token" title="永久链接至目标">¶</a></dt>
+<dd><p>The extracted token object, which contains <code class="docutils literal notranslate"><span class="pre">header</span></code> and <code class="docutils literal notranslate"><span class="pre">claims</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> -- the header part of the JWT</p></li>
+<li><p><strong>claims</strong> -- the payload part of the JWT</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jwt.Token.claims">
+<span class="sig-name descname"><span class="pre">claims</span></span><a class="headerlink" href="#joserfc.jwt.Token.claims" title="永久链接至目标">¶</a></dt>
+<dd><p>payload claims in dict</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="joserfc.jwt.Token.header">
+<span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#joserfc.jwt.Token.header" title="永久链接至目标">¶</a></dt>
+<dd><p>header in dict</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jwt.check_sensitive_data">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jwt.</span></span><span class="sig-name descname"><span class="pre">check_sensitive_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#joserfc.jwt.check_sensitive_data" title="永久链接至目标">¶</a></dt>
+<dd><p>Check if claims contains sensitive information.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jwt.decode">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jwt.</span></span><span class="sig-name descname"><span class="pre">decode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../jws/#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwe/#joserfc.jwe.JWERegistry" title="joserfc.rfc7516.registry.JWERegistry"><span class="pre">JWERegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#joserfc.jwt.Token" title="joserfc.jwt.Token"><span class="pre">Token</span></a></span></span><a class="headerlink" href="#joserfc.jwt.decode" title="永久链接至目标">¶</a></dt>
+<dd><p>Decode the JSON Web Token string with the given key, and validate
+it with the claims requests.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> -- text of the JWT</p></li>
+<li><p><strong>key</strong> -- key used to verify the signature</p></li>
+<li><p><strong>algorithms</strong> -- a list of allowed algorithms</p></li>
+<li><p><strong>registry</strong> -- a <code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code> or <code class="docutils literal notranslate"><span class="pre">JWERegistry</span></code> to use</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raise<span class="colon">:</span></dt>
+<dd class="field-even"><p>BadSignatureError</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="joserfc.jwt.encode">
+<span class="sig-prename descclassname"><span class="pre">joserfc.jwt.</span></span><span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">claims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bytes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">KeySet</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">GuestProtocol</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OctKey" title="joserfc.rfc7518.oct_key.OctKey"><span class="pre">OctKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.RSAKey" title="joserfc.rfc7518.rsa_key.RSAKey"><span class="pre">RSAKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.ECKey" title="joserfc.rfc7518.ec_key.ECKey"><span class="pre">ECKey</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwk/#joserfc.jwk.OKPKey" title="joserfc.rfc8037.okp_key.OKPKey"><span class="pre">OKPKey</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">algorithms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">registry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../jws/#joserfc.jws.JWSRegistry" title="joserfc.rfc7515.registry.JWSRegistry"><span class="pre">JWSRegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="../jwe/#joserfc.jwe.JWERegistry" title="joserfc.rfc7516.registry.JWERegistry"><span class="pre">JWERegistry</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#joserfc.jwt.encode" title="永久链接至目标">¶</a></dt>
+<dd><p>Encode a JSON Web Token with the given header, and claims.</p>
+<dl class="field-list simple">
+<dt class="field-odd">参数<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header</strong> -- A dict of the JWT header</p></li>
+<li><p><strong>claims</strong> -- A dict of the JWT claims to be encoded</p></li>
+<li><p><strong>key</strong> -- key used to sign the signature</p></li>
+<li><p><strong>algorithms</strong> -- a list of allowed algorithms</p></li>
+<li><p><strong>registry</strong> -- a <code class="docutils literal notranslate"><span class="pre">JWSRegistry</span></code> or <code class="docutils literal notranslate"><span class="pre">JWERegistry</span></code> to use</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../jwk/">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>上一章</span>
+        
+        <div class="title">JWK API</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="../../security/">
+      <div class="page-info">
+        <span>下一章</span>
+        <div class="title">安全</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script src="../../_static/shibuya.js"></script>
+    
+</body>
+</html>

@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>JSON Web Signature - joserfc</title>
+    <link rel="index" title="索引" href="../../genindex/" /><link rel="search" title="搜索" href="../../search/" /><link rel="next" title="JSON Web Encryption" href="../jwe/" /><link rel="prev" title="JSON Web Token" href="../jwt/" />
+    <link rel="canonical" href="https://jose.authlib.org/zh/dev/guide/jws/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/zh/dev/guide/jws/"/>
+<meta property="og:title" content="JSON Web Signature"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="description" content="How to serialize and deserialize JWS in Compact, General JSON, and Flattened JSON Serialization."/>
+<meta property="og:description" content="How to serialize and deserialize JWS in Compact, General JSON, and Flattened JSON Serialization."/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="en" href="https://jose.authlib.org/en/dev/guide/jws/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../../">
+      <img class="light-logo" src="../../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../../search/" method="get">
+  <input type="text" name="q" placeholder="搜索" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">翻译</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/guide/jws/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/guide/jws/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="切换到暗色模式" data-aria-dark="切换到亮色模式">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">开始上手</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/">安装</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">必读文档</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../">教程</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../jwk/">JSON Web Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwt/">JSON Web Token</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JSON Web Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwe/">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">算法</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../registry/">注册表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrations/">迁移</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/authlib/">从 Authlib 迁移到 joserfc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/pyjwt/">从 PyJWT 迁移到 joserfc</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">小技巧</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/">API 参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jws/">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwk/">JWK API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwt/">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../security/">安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../stability/">稳定性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">参与贡献</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/structure/">代码结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/translation/">翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/authors/">作者列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/sponsors/">赞助者</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">历史记录</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>该页内容</h3>
+    <ul>
+<li><a class="reference internal" href="#compact-signature">Compact Signature</a><ul>
+<li><a class="reference internal" href="#serialization">Serialization</a></li>
+<li><a class="reference internal" href="#deserialization">Deserialization</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#json-signature">JSON Signature</a><ul>
+<li><a class="reference internal" href="#id1">Serialization</a></li>
+<li><a class="reference internal" href="#id2">Deserialization</a></li>
+<li><a class="reference internal" href="#general-and-flattened">General and Flattened</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#algorithms">&#31639;&#27861;</a><ul>
+<li><a class="reference internal" href="#algorithm-not-allowed">Algorithm not allowed</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#unencoded-payload-option">Unencoded Payload Option</a></li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/guide/jws.rst">编辑此页面</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../../">joserfc</a><span>/</span></li>
+      
+      <li><a href="../">教程</a><span>/</span></li>
+      
+      <li><strong>JSON Web Signature</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="json-web-signature">
+<span id="jws"></span><h1>JSON Web Signature<a class="headerlink" href="#json-web-signature" title="此标题的永久链接">¶</a></h1>
+<p>JSON Web Signature (JWS) represents content secured with digital
+signatures or Message Authentication Codes (MACs) using JSON-based
+data structures. (via <a class="reference external" href="https://www.rfc-editor.org/rfc/rfc7515">RFC7515</a>)</p>
+<section id="compact-signature">
+<h2>Compact Signature<a class="headerlink" href="#compact-signature" title="此标题的永久链接">¶</a></h2>
+<p>The JWS Compact Serialization represents digitally signed or MACed
+content as a compact, URL-safe string. This string is:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span id="1-1">BASE64URL(UTF8(JWS Protected Header)) || &#39;.&#39; ||
+</span><span id="1-2">BASE64URL(JWS Payload) || &#39;.&#39; ||
+</span><span id="1-3">BASE64URL(JWS Signature)
+</span></pre></div>
+</div>
+<p>以下是一个紧凑型序列化的例子（换行符仅用于显示目的）：</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span><span id="1-1">eyJ0eXAiOiJKV1QiLA0KICJhbGciOiJIUzI1NiJ9.
+</span><span id="1-2">eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFt
+</span><span id="1-3">cGxlLmNvbS9pc19yb290Ijp0cnVlfQ.
+</span><span id="1-4">dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
+</span></pre></div>
+</div>
+<section id="serialization">
+<h3>Serialization<a class="headerlink" href="#serialization" title="此标题的永久链接">¶</a></h3>
+<p>You can call <a class="reference internal" href="../../api/jws/#joserfc.jws.serialize_compact" title="joserfc.jws.serialize_compact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jws.serialize_compact()</span></code></a> to construct a compact JWS serialization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">protected</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">}</span>
+</span><span id="1-4"><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-5"><span class="c1"># =&gt; &#39;eyJhbGciOiJIUzI1NiJ9.aGVsbG8.UYmO_lPAY5V0Wf4KZsfhiYs1SxqXPhxvjuYqellDV5A&#39;</span>
+</span></pre></div>
+</div>
+<p>A compact JWS is constructed by protected header, payload and a private key. In the above
+example, <code class="docutils literal notranslate"><span class="pre">protected</span></code> is the &quot;protected header&quot; part, <cite>&quot;hello&quot;</cite> is the payload part, and
+<cite>&quot;secret&quot;</cite> is a plain private key.</p>
+<p>We encourage developers to use a specified key type, the above <cite>&quot;secret&quot;</cite> is actually a
+<a class="reference internal" href="../../api/jwk/#joserfc.jwk.OctKey" title="joserfc.jwk.OctKey"><code class="xref py py-class docutils literal notranslate"><span class="pre">jwk.OctKey</span></code></a>. A better example could be:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">OctKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">protected</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">}</span>
+</span><span id="1-5"><span class="n">payload</span> <span class="o">=</span> <span class="s2">&quot;hello&quot;</span>
+</span><span id="1-6"><span class="n">key</span> <span class="o">=</span> <span class="n">OctKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-7"><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>You can learn more about <a class="reference internal" href="../jwk/#jwk"><span class="std std-ref">JSON Web Key</span></a> in previous section.</p>
+</section>
+<section id="deserialization">
+<h3>Deserialization<a class="headerlink" href="#deserialization" title="此标题的永久链接">¶</a></h3>
+<p>Calling <a class="reference internal" href="../../api/jws/#joserfc.jws.deserialize_compact" title="joserfc.jws.deserialize_compact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jws.deserialize_compact()</span></code></a> to extract and verify the compact
+serialization with a public key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">OctKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;eyJhbGciOiJIUzI1NiJ9.aGVsbG8.UYmO_lPAY5V0Wf4KZsfhiYs1SxqXPhxvjuYqellDV5A&quot;</span>
+</span><span id="1-5"><span class="n">key</span> <span class="o">=</span> <span class="n">OctKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-6"><span class="n">obj</span> <span class="o">=</span> <span class="n">jws</span><span class="o">.</span><span class="n">deserialize_compact</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span><span id="1-7"><span class="c1"># obj.protected =&gt; {&quot;alg&quot;: &quot;HS256&quot;}</span>
+</span><span id="1-8"><span class="c1"># obj.payload =&gt; b&quot;hello&quot;</span>
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="json-signature">
+<h2>JSON Signature<a class="headerlink" href="#json-signature" title="此标题的永久链接">¶</a></h2>
+<p>The JWS JSON Serialization represents digitally signed or MACed
+content as a JSON object.  This representation is neither optimized
+for compactness nor URL-safe.</p>
+<p>An example of a JSON serialization:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="p">{</span>
+</span><span id="1-2"><span class="w">  </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ&quot;</span><span class="p">,</span>
+</span><span id="1-3"><span class="w">  </span><span class="nt">&quot;signatures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="1-4"><span class="w">    </span><span class="p">{</span>
+</span><span id="1-5"><span class="w">      </span><span class="nt">&quot;protected&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJSUzI1NiJ9&quot;</span><span class="p">,</span>
+</span><span id="1-6"><span class="w">      </span><span class="nt">&quot;header&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;kid&quot;</span><span class="p">:</span><span class="s2">&quot;2010-12-29&quot;</span><span class="p">},</span>
+</span><span id="1-7"><span class="w">      </span><span class="nt">&quot;signature&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;cC4hiUPoj9Eetdgtv3hF80EGrhuB__dzERat0XF9g2VtQgr9PJbu3XOiZj5RZmh7AAuHIm4Bh-0Qc_lF5YKt_O8W2Fp5jujGbds9uJdbF9CUAr7t1dnZcAcQjbKBYNX4BAynRFdiuB--f_nZLgrnbyTyWzO75vRK5h6xBArLIARNPvkSjtQBMHlb1L07Qe7K0GarZRmB_eSN9383LcOLn6_dO--xi12jzDwusC-eOkHWEsqtFZESc6BfI7noOPqvhJ1phCnvWh6IeYI2w9QOYEUipUTI8np6LbgGY9Fs98rqVt5AXLIhWkWywlVmtVrBp0igcN_IoypGlUPQGe77Rw&quot;</span>
+</span><span id="1-8"><span class="w">    </span><span class="p">},</span>
+</span><span id="1-9"><span class="w">    </span><span class="p">{</span>
+</span><span id="1-10"><span class="w">      </span><span class="nt">&quot;protected&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJFUzI1NiJ9&quot;</span><span class="p">,</span>
+</span><span id="1-11"><span class="w">      </span><span class="nt">&quot;header&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;kid&quot;</span><span class="p">:</span><span class="s2">&quot;e9bc097a-ce51-4036-9562-d2ade882db0d&quot;</span><span class="p">},</span>
+</span><span id="1-12"><span class="w">      </span><span class="nt">&quot;signature&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q&quot;</span>
+</span><span id="1-13"><span class="w">    </span><span class="p">}</span>
+</span><span id="1-14"><span class="w">  </span><span class="p">]</span>
+</span><span id="1-15"><span class="p">}</span>
+</span></pre></div>
+</div>
+<section id="id1">
+<h3>Serialization<a class="headerlink" href="#id1" title="此标题的永久链接">¶</a></h3>
+<p>You can call <a class="reference internal" href="../../api/jws/#joserfc.jws.serialize_json" title="joserfc.jws.serialize_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jws.serialize_json()</span></code></a> to construct a JSON JWS serialization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-3"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">KeySet</span>
+</span><span id="1-4">
+</span><span id="1-5"><span class="n">members</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="1-6">    <span class="p">{</span>
+</span><span id="1-7">        <span class="s2">&quot;protected&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;RS256&quot;</span><span class="p">},</span>
+</span><span id="1-8">        <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="s2">&quot;2010-12-29&quot;</span><span class="p">},</span>
+</span><span id="1-9">    <span class="p">},</span>
+</span><span id="1-10">    <span class="p">{</span>
+</span><span id="1-11">        <span class="s2">&quot;protected&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;ES256&quot;</span><span class="p">},</span>
+</span><span id="1-12">        <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="s2">&quot;e9bc097a-ce51-4036-9562-d2ade882db0d&quot;</span><span class="p">},</span>
+</span><span id="1-13">    <span class="p">},</span>
+</span><span id="1-14"><span class="p">]</span>
+</span><span id="1-15"><span class="n">payload</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;{&quot;iss&quot;:&quot;joe&quot;,</span><span class="se">\r\n</span><span class="s1"> &quot;exp&quot;:1300819380,</span><span class="se">\r\n</span><span class="s1"> &quot;http://example.com/is_root&quot;:true}&#39;</span>
+</span><span id="1-16">
+</span><span id="1-17"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your-private-jwks.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="1-18">    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="1-19">    <span class="c1"># this key set SHOULD contains kid of &quot;2010-12-29&quot;</span>
+</span><span id="1-20">    <span class="c1"># and &quot;e9bc097a-ce51-4036-9562-d2ade882db0d&quot;</span>
+</span><span id="1-21">    <span class="n">private_key_set</span> <span class="o">=</span> <span class="n">KeySet</span><span class="o">.</span><span class="n">import_key_set</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="1-22">
+</span><span id="1-23"><span class="n">value</span> <span class="o">=</span> <span class="n">jws</span><span class="o">.</span><span class="n">serialize_json</span><span class="p">(</span><span class="n">members</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">private_key_set</span><span class="p">)</span>
+</span><span id="1-24"><span class="c1">#: this ``value`` is a dict which looks like the example above</span>
+</span></pre></div>
+</div>
+<p>The JSON JWS serialization is constructed by members, payload and private key. A <strong>member</strong>
+is a combination of protected header and public header:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">member</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="1-2">    <span class="s2">&quot;protected&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;RS256&quot;</span><span class="p">},</span>
+</span><span id="1-3">    <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="s2">&quot;2010-12-29&quot;</span><span class="p">},</span>
+</span><span id="1-4"><span class="p">}</span>
+</span></pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">protected</span></code> header will be base64 encoded in the JSON serialization, together with
+the payload to sign a signature for the member:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><span id="1-1">SIGNATURE INPUT =
+</span><span id="1-2">    BASE64URL(UTF8(JWS Protected Header)) || &#39;.&#39; ||
+</span><span id="1-3">    BASE64URL(JWS Payload)
+</span><span id="1-4">
+</span><span id="1-5">SIGNATURE =
+</span><span id="1-6">    BASE64URL(SignMethod(SIGNATURE INPUT, Private Key))
+</span></pre></div>
+</div>
+<p>In the above example, we passed a <code class="xref py py-class docutils literal notranslate"><span class="pre">jwk.KeySet</span></code> as the private key parameter, the
+<a class="reference internal" href="../../api/jws/#joserfc.jws.serialize_json" title="joserfc.jws.serialize_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jws.serialize_json()</span></code></a> will find the correct key in the key set by <code class="docutils literal notranslate"><span class="pre">kid</span></code>.</p>
+</section>
+<section id="id2">
+<h3>Deserialization<a class="headerlink" href="#id2" title="此标题的永久链接">¶</a></h3>
+<p>Calling <a class="reference internal" href="../../api/jws/#joserfc.jws.deserialize_json" title="joserfc.jws.deserialize_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jws.deserialize_json()</span></code></a> to extract and verify the JSON
+serialization with a public key.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your-public-jwks.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="1-2">    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="1-3">    <span class="c1"># the public pair of your previous private key set</span>
+</span><span id="1-4">    <span class="n">public_key_set</span> <span class="o">=</span> <span class="n">KeySet</span><span class="o">.</span><span class="n">import_key_set</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="1-5">
+</span><span id="1-6"><span class="c1"># value is the generated by above code</span>
+</span><span id="1-7"><span class="n">obj</span> <span class="o">=</span> <span class="n">jws</span><span class="o">.</span><span class="n">deserialize_json</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">public_key_set</span><span class="p">)</span>
+</span><span id="1-8"><span class="c1"># =&gt; assert obj.payload == payload</span>
+</span></pre></div>
+</div>
+</section>
+<section id="general-and-flattened">
+<h3>General and Flattened<a class="headerlink" href="#general-and-flattened" title="此标题的永久链接">¶</a></h3>
+<p>There are two types of JSON JWS serializations, &quot;general&quot; and &quot;flattened&quot;.
+The above example is a General JSON Serialization. A Flattened JSON Serialization
+contains only one member. Compair the bellow examples:</p>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Flattened JSON Serialization</span><a class="headerlink" href="#id3" title="此代码块的永久链接">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="p">{</span>
+</span><span id="1-2"><span class="w">  </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ&quot;</span><span class="p">,</span>
+</span><span id="1-3"><span class="w">  </span><span class="nt">&quot;protected&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJFUzI1NiJ9&quot;</span><span class="p">,</span>
+</span><span id="1-4"><span class="w">  </span><span class="nt">&quot;header&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;kid&quot;</span><span class="p">:</span><span class="s2">&quot;e9bc097a-ce51-4036-9562-d2ade882db0d&quot;</span><span class="p">},</span>
+</span><span id="1-5"><span class="w">  </span><span class="nt">&quot;signature&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q&quot;</span>
+</span><span id="1-6"><span class="p">}</span>
+</span></pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">General JSON Serialization</span><a class="headerlink" href="#id4" title="此代码块的永久链接">¶</a></div>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="p">{</span>
+</span><span id="1-2"><span class="w">  </span><span class="nt">&quot;payload&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJpc3MiOiJqb2UiLA0KICJleHAiOjEzMDA4MTkzODAsDQogImh0dHA6Ly9leGFtcGxlLmNvbS9pc19yb290Ijp0cnVlfQ&quot;</span><span class="p">,</span>
+</span><span id="1-3"><span class="w">  </span><span class="nt">&quot;signatures&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+</span><span id="1-4"><span class="w">    </span><span class="p">{</span>
+</span><span id="1-5"><span class="w">      </span><span class="nt">&quot;protected&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;eyJhbGciOiJFUzI1NiJ9&quot;</span><span class="p">,</span>
+</span><span id="1-6"><span class="w">      </span><span class="nt">&quot;header&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;kid&quot;</span><span class="p">:</span><span class="s2">&quot;e9bc097a-ce51-4036-9562-d2ade882db0d&quot;</span><span class="p">},</span>
+</span><span id="1-7"><span class="w">      </span><span class="nt">&quot;signature&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;DtEhU3ljbEg8L38VWAfUAqOyKAM6-Xx-F4GawxaepmXFCgfTjDxw5djxLa8ISlSApmWQxfKTUJqPP3-Kg6NU1Q&quot;</span>
+</span><span id="1-8"><span class="w">    </span><span class="p">}</span>
+</span><span id="1-9"><span class="w">  </span><span class="p">]</span>
+</span><span id="1-10"><span class="p">}</span>
+</span></pre></div>
+</div>
+</div>
+<p>You can pass a member dict to construct a flattened serialization; and
+a list of members to construct a general serialization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">member</span> <span class="o">=</span> <span class="p">{</span>
+</span><span id="1-2">    <span class="s2">&quot;protected&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;ES256&quot;</span><span class="p">},</span>
+</span><span id="1-3">    <span class="s2">&quot;header&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="s2">&quot;e9bc097a-ce51-4036-9562-d2ade882db0d&quot;</span><span class="p">},</span>
+</span><span id="1-4"><span class="p">}</span>
+</span><span id="1-5">
+</span><span id="1-6"><span class="c1"># flattened</span>
+</span><span id="1-7"><span class="n">jws</span><span class="o">.</span><span class="n">serialize_json</span><span class="p">(</span><span class="n">member</span><span class="p">,</span> <span class="n">payload</span><span class="p">,</span> <span class="n">private_key</span><span class="p">)</span>
+</span><span id="1-8">
+</span><span id="1-9"><span class="c1"># general</span>
+</span><span id="1-10"><span class="n">jws</span><span class="o">.</span><span class="n">serialize_json</span><span class="p">([</span><span class="n">member</span><span class="p">],</span> <span class="n">payload</span><span class="p">,</span> <span class="n">private_key</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The returned value from <code class="docutils literal notranslate"><span class="pre">deserialize_json</span></code> is an object of
+<a class="reference internal" href="../../api/jws/#joserfc.jws.GeneralJSONSignature" title="joserfc.jws.GeneralJSONSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">jws.GeneralJSONSignature</span></code></a> or <a class="reference internal" href="../../api/jws/#joserfc.jws.FlattenedJSONSignature" title="joserfc.jws.FlattenedJSONSignature"><code class="xref py py-class docutils literal notranslate"><span class="pre">jws.FlattenedJSONSignature</span></code></a>,
+you can tell if the signature is flattened or general with <code class="docutils literal notranslate"><span class="pre">obj.flattened</span></code>:</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">在 0.6.0 版本发生变更: </span><code class="docutils literal notranslate"><span class="pre">jws.JSONSignature</span></code> is seperated to <code class="docutils literal notranslate"><span class="pre">GeneralJSONSignature</span></code> and <code class="docutils literal notranslate"><span class="pre">FlattenedJSONSignature</span></code>.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">obj</span> <span class="o">=</span> <span class="n">jws</span><span class="o">.</span><span class="n">deserialize_json</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">public_key</span><span class="p">)</span>
+</span><span id="1-2"><span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">flattened</span><span class="p">:</span>
+</span><span id="1-3">    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Flattened JSON Serialization&quot;</span><span class="p">)</span>
+</span><span id="1-4"><span class="k">else</span><span class="p">:</span>
+</span><span id="1-5">    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;General JSON Serialization&quot;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="algorithms">
+<h2>算法<a class="headerlink" href="#algorithms" title="此标题的永久链接">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">joserfc.jws</span></code> module supports algorithms from RFC7518, RFC8037,
+and RFC8812. Here lists all the algorithms <code class="docutils literal notranslate"><span class="pre">joserfc.jws</span></code> supporting:</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>算法名</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>是推荐</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>none</p></td>
+<td><p>No digital signature or MAC performed</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>HS256</p></td>
+<td><p>HMAC using SHA-256</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">YES</span></p></td>
+</tr>
+<tr class="row-even"><td><p>HS384</p></td>
+<td><p>HMAC using SHA-384</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>HS512</p></td>
+<td><p>HMAC using SHA-512</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>RS256</p></td>
+<td><p>RSASSA-PKCS1-v1_5 using SHA-256</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">YES</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>RS384</p></td>
+<td><p>RSASSA-PKCS1-v1_5 using SHA-384</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>RS512</p></td>
+<td><p>RSASSA-PKCS1-v1_5 using SHA-512</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>ES256</p></td>
+<td><p>ECDSA using P-256 and SHA-256</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">YES</span></p></td>
+</tr>
+<tr class="row-even"><td><p>ES384</p></td>
+<td><p>ECDSA using P-384 and SHA-384</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>ES512</p></td>
+<td><p>ECDSA using P-521 and SHA-512</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>PS256</p></td>
+<td><p>RSASSA-PSS using SHA-256 and MGF1 with SHA-256</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>PS384</p></td>
+<td><p>RSASSA-PSS using SHA-384 and MGF1 with SHA-384</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>PS512</p></td>
+<td><p>RSASSA-PSS using SHA-512 and MGF1 with SHA-512</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>EdDSA</p></td>
+<td><p>Edwards-curve Digital Signature</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>ES256K</p></td>
+<td><p>ECDSA using secp256k1 curve and SHA-256</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="algorithm-not-allowed">
+<h3>Algorithm not allowed<a class="headerlink" href="#algorithm-not-allowed" title="此标题的永久链接">¶</a></h3>
+<p>The serialization and deserialization methods on <code class="docutils literal notranslate"><span class="pre">joserfc.jws</span></code> module accept
+an <code class="docutils literal notranslate"><span class="pre">algorithms</span></code> parameter for specifying the allowed algorithms. By default,
+those <code class="docutils literal notranslate"><span class="pre">serialize</span></code> and <code class="docutils literal notranslate"><span class="pre">deserialize</span></code> methods will ONLY allow recommended
+algorithms defined by RFCs. With non recommended algorithms, you may encounter
+the below error.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS384&quot;</span><span class="p">},</span> <span class="sa">b</span><span class="s2">&quot;payload&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-3"><span class="gt">Traceback (most recent call last):</span>
+</span><span id="1-4">  File <span class="nb">&quot;&lt;stdin&gt;&quot;</span>, line <span class="m">1</span>, in <span class="n">&lt;module&gt;</span>
+</span><span id="1-5">  File <span class="nb">&quot;$/joserfc/jws.py&quot;</span>, line <span class="m">99</span>, in <span class="n">serialize_compact</span>
+</span><span id="1-6"><span class="w">    </span><span class="n">alg</span><span class="p">:</span> <span class="n">JWSAlgModel</span> <span class="o">=</span> <span class="n">registry</span><span class="o">.</span><span class="n">get_alg</span><span class="p">(</span><span class="n">header</span><span class="p">[</span><span class="s2">&quot;alg&quot;</span><span class="p">])</span>
+</span><span id="1-7">  File <span class="nb">&quot;$/joserfc/rfc7515/registry.py&quot;</span>, line <span class="m">57</span>, in <span class="n">get_alg</span>
+</span><span id="1-8"><span class="w">    </span><span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Algorithm of &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot; is not allowed&#39;</span><span class="p">)</span>
+</span><span id="1-9"><span class="gr">ValueError</span>: <span class="n">Algorithm of &quot;HS384&quot; is not allowed</span>
+</span></pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">joserfc</span></code> does support <code class="docutils literal notranslate"><span class="pre">HS384</span></code>, but this algorithm is not recommended by
+specifications, developers MUST explict specify the supported algorithms
+either by the <code class="docutils literal notranslate"><span class="pre">algorithms</span></code> parameter, or <code class="docutils literal notranslate"><span class="pre">registry</span></code> parameter.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS384&quot;</span><span class="p">},</span> <span class="sa">b</span><span class="s2">&quot;payload&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HS384&quot;</span><span class="p">])</span>
+</span><span id="1-3"><span class="go">&#39;eyJhbGciOiJIUzM4NCJ9.cGF5bG9hZA.TJEvlp74g89hNRNGNZxCQvB7YDEAWP5vFAjgu1O9Qr5BLMj0NtvbxvYkVYPGp-xQ&#39;</span>
+</span></pre></div>
+</div>
+<p>Developers can also apply the <code class="docutils literal notranslate"><span class="pre">registry</span></code> parameter to resolve this issue. Here is an example
+of using <a class="reference internal" href="../registry/#registry"><span class="std std-ref">注册表</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jws</span>
+</span><span id="1-2"><span class="gp">&gt;&gt;&gt; </span><span class="n">registry</span> <span class="o">=</span> <span class="n">jws</span><span class="o">.</span><span class="n">JWSRegistry</span><span class="p">(</span><span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;HS384&quot;</span><span class="p">])</span>
+</span><span id="1-3"><span class="gp">&gt;&gt;&gt; </span><span class="n">jws</span><span class="o">.</span><span class="n">serialize_compact</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS384&quot;</span><span class="p">},</span> <span class="sa">b</span><span class="s2">&quot;payload&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="n">registry</span><span class="p">)</span>
+</span><span id="1-4"><span class="go">&#39;eyJhbGciOiJIUzM4NCJ9.cGF5bG9hZA.TJEvlp74g89hNRNGNZxCQvB7YDEAWP5vFAjgu1O9Qr5BLMj0NtvbxvYkVYPGp-xQ&#39;</span>
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="unencoded-payload-option">
+<span id="rfc7797"></span><h2>Unencoded Payload Option<a class="headerlink" href="#unencoded-payload-option" title="此标题的永久链接">¶</a></h2>
+<p>The unencoded payload option, defined in RFC7797, allows the payload of a
+JWS (JSON Web Signature) to remain unencoded, without using base64 encoding.</p>
+<p>To enable this option, you need to set the <code class="docutils literal notranslate"><span class="pre">b64</span></code> header parameter to <code class="docutils literal notranslate"><span class="pre">false</span></code>
+in the JWS header.</p>
+<p>To utilize the unencoded payload option in joserfc, you must import the
+serialize and deserialize methods from <code class="docutils literal notranslate"><span class="pre">joserfc.rfc7797</span></code>.</p>
+<p>Here are examples demonstrating the usage of the <code class="docutils literal notranslate"><span class="pre">b64</span></code> option:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.rfc7797</span> <span class="kn">import</span> <span class="n">serialize_compact</span><span class="p">,</span> <span class="n">deserialize_compact</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">protected</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">,</span> <span class="s2">&quot;b64&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;crit&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;b64&quot;</span><span class="p">]}</span>
+</span><span id="1-4"><span class="n">value</span> <span class="o">=</span> <span class="n">serialize_compact</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-5"><span class="c1"># =&gt; &#39;eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19.hello.mdPbZLtc3tqQ6NCV1pKF-qfEx-3jtR6rv109phKAc4I&#39;</span>
+</span><span id="1-6"><span class="n">deserialize_compact</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">crit</span></code> MUST be present with <code class="docutils literal notranslate"><span class="pre">&quot;b64&quot;</span></code> in its value set when
+<code class="docutils literal notranslate"><span class="pre">b64</span></code> is in the header.</p>
+</div>
+<p>Since the payload is not base64 encoded, if the payload contains non urlsafe
+characters, the compact serialization will detach the payload:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.rfc7797</span> <span class="kn">import</span> <span class="n">serialize_compact</span><span class="p">,</span> <span class="n">deserialize_compact</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">protected</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;HS256&quot;</span><span class="p">,</span> <span class="s2">&quot;b64&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;crit&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;b64&quot;</span><span class="p">]}</span>
+</span><span id="1-4"><span class="n">value</span> <span class="o">=</span> <span class="n">serialize_compact</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="s2">&quot;$.02&quot;</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">)</span>
+</span><span id="1-5"><span class="c1"># =&gt; &#39;eyJhbGciOiJIUzI1NiIsImI2NCI6ZmFsc2UsImNyaXQiOlsiYjY0Il19..GbtzAD3Cwe6snTZnaAxapwQz5QftEz7agx_6aMtZ4w0&#39;</span>
+</span><span id="1-6"><span class="c1"># since the payload is detached, you need to specify the</span>
+</span><span id="1-7"><span class="c1"># payload when calling deserialize_compact</span>
+</span><span id="1-8"><span class="n">deserialize_compact</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;secret&quot;</span><span class="p">,</span> <span class="n">payload</span><span class="o">=</span><span class="s2">&quot;$.02&quot;</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>There are also methods for JSON serialization: <code class="docutils literal notranslate"><span class="pre">serialize_json</span></code> and
+<code class="docutils literal notranslate"><span class="pre">deserialize_json</span></code>.</p>
+</section>
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../jwt/">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>上一章</span>
+        
+        <div class="title">JSON Web Token</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="../jwe/">
+      <div class="page-info">
+        <span>下一章</span>
+        <div class="title">JSON Web Encryption</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script src="../../_static/shibuya.js"></script>
+    
+</body>
+</html>

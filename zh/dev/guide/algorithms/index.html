@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>算法 - joserfc</title>
+    <link rel="index" title="索引" href="../../genindex/" /><link rel="search" title="搜索" href="../../search/" /><link rel="next" title="注册表" href="../registry/" /><link rel="prev" title="JSON Web Encryption" href="../jwe/" />
+    <link rel="canonical" href="https://jose.authlib.org/zh/dev/guide/algorithms/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/zh/dev/guide/algorithms/"/>
+<meta property="og:title" content="算法"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="description" content="JWS、JWE、JWK 和 JWT 所有可用的算法。"/>
+<meta property="og:description" content="JWS、JWE、JWK 和 JWT 所有可用的算法。"/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="en" href="https://jose.authlib.org/en/dev/guide/algorithms/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../../">
+      <img class="light-logo" src="../../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../../search/" method="get">
+  <input type="text" name="q" placeholder="搜索" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">翻译</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/guide/algorithms/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/guide/algorithms/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="切换到暗色模式" data-aria-dark="切换到亮色模式">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">开始上手</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/">安装</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">必读文档</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../">教程</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../jwk/">JSON Web Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwt/">JSON Web Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jws/">JSON Web Signature</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwe/">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">算法</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../registry/">注册表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrations/">迁移</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/authlib/">从 Authlib 迁移到 joserfc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/pyjwt/">从 PyJWT 迁移到 joserfc</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">小技巧</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/">API 参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jws/">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwk/">JWK API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwt/">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../security/">安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../stability/">稳定性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">参与贡献</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/structure/">代码结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/translation/">翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/authors/">作者列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/sponsors/">赞助者</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">历史记录</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>该页内容</h3>
+    <ul>
+<li><a class="reference internal" href="#json-web-key">JSON Web Key</a></li>
+<li><a class="reference internal" href="#json-web-signature">JSON Web Signature</a></li>
+<li><a class="reference internal" href="#json-web-encryption">JSON Web Encryption</a><ul>
+<li><a class="reference internal" href="#okpkey">OKPKey</a></li>
+<li><a class="reference internal" href="#c20p-and-xc20p">C20P &#19982; XC20P</a><ul>
+<li><a class="reference internal" href="#register-ciphers">&#27880;&#20876;&#23494;&#30721;&#31639;&#27861;</a></li>
+<li><a class="reference internal" href="#use-custom-registry">&#33258;&#23450;&#20041;&#27880;&#20876;&#34920; <code class="docutils literal notranslate"><span class="pre">registry</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#ecdh-1pu-algorithms">ECDH-1PU &#30456;&#20851;&#31639;&#27861;</a></li>
+</ul>
+</li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/guide/algorithms.rst">编辑此页面</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../../">joserfc</a><span>/</span></li>
+      
+      <li><strong>算法</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="algorithms">
+<span id="jwa"></span><h1>算法<a class="headerlink" href="#algorithms" title="此标题的永久链接">¶</a></h1>
+<p class="lead">JWS、JWE、JWK 和 JWT 所有可用的算法。</p>
+<hr class="docutils" />
+<p>本文档描述了在 JSON Web Signature (JWS)、JSON Web Encryption (JWE) 和 JSON Web Key (JWK) 中使用的算法。</p>
+<section id="json-web-key">
+<h2>JSON Web Key<a class="headerlink" href="#json-web-key" title="此标题的永久链接">¶</a></h2>
+<p>JSON Web Key（JWK）的算法包括：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../jwk/#octkey"><span class="std std-ref">OctKey</span></a> ：接受以比特为单位的密钥大小，这意味着 <code class="docutils literal notranslate"><span class="pre">key_size</span></code> 必须是 8 的倍数。</p></li>
+<li><p><a class="reference internal" href="../jwk/#rsakey"><span class="std std-ref">RSAKey</span></a> ：接受以比特为单位的密钥大小，<code class="docutils literal notranslate"><span class="pre">key_size</span></code> 必须 <code class="docutils literal notranslate"><span class="pre">&gt;=512</span></code> 且为 8 的倍数。</p></li>
+<li><p><a class="reference internal" href="../jwk/#eckey"><span class="std std-ref">ECKey</span></a> ：接受 <code class="docutils literal notranslate"><span class="pre">crv</span></code> 为 <code class="docutils literal notranslate"><span class="pre">P-256</span></code>、<code class="docutils literal notranslate"><span class="pre">P-384</span></code>、<code class="docutils literal notranslate"><span class="pre">P-521</span></code> 和 <code class="docutils literal notranslate"><span class="pre">secp256k1</span></code>。</p></li>
+<li><p><a class="reference internal" href="../jwk/#okpkey"><span class="std std-ref">OKPKey</span></a> ：接受 <code class="docutils literal notranslate"><span class="pre">crv</span></code> 为 <code class="docutils literal notranslate"><span class="pre">Ed25519</span></code>、<code class="docutils literal notranslate"><span class="pre">Ed448</span></code>、<code class="docutils literal notranslate"><span class="pre">X25519</span></code> 和 <code class="docutils literal notranslate"><span class="pre">X448</span></code>。</p></li>
+</ul>
+</section>
+<section id="json-web-signature">
+<span id="jws-algorithms"></span><h2>JSON Web Signature<a class="headerlink" href="#json-web-signature" title="此标题的永久链接">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">joserfc.jws</span></code> 模块支持 RFC7518、RFC8037 和 RFC8812 中的算法。您必须为每个算法指定正确的密钥类型。</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>算法名</p></th>
+<th class="head"><p>密钥类型</p></th>
+<th class="head"><p>是推荐</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>none</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>HS256</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-even"><td><p>HS384</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>HS512</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>RS256</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>RS384</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>RS512</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>ES256</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-even"><td><p>ES384</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>ES512</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>PS256</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>PS384</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>PS512</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>EdDSA</p></td>
+<td><p>OKPKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>ES256K</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p><code class="docutils literal notranslate"><span class="pre">EdDSA</span></code> 算法只接受具有 &quot;crv&quot; 为 &quot;Ed25519&quot; 和 &quot;Ed448&quot; 的 <code class="docutils literal notranslate"><span class="pre">OKPKey</span></code>。</p>
+</div>
+</section>
+<section id="json-web-encryption">
+<span id="jwe-algorithms"></span><h2>JSON Web Encryption<a class="headerlink" href="#json-web-encryption" title="此标题的永久链接">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">joserfc.jwe</span></code> 模块支持 RFC7518 中的算法，以及 <code class="docutils literal notranslate"><span class="pre">ECDH-1PU</span></code> 的草案。您必须为每个算法指定正确的密钥类型。</p>
+<div class="table-wrapper docutils container">
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>算法名</p></th>
+<th class="head"><p>密钥类型</p></th>
+<th class="head"><p>是推荐</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>dir</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>A128KW</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-even"><td><p>A192KW</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>A256KW</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-even"><td><p>RSA1_5</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>RSA-OAEP</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-even"><td><p>RSA-OAEP-256</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>ECDH-ES</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-even"><td><p>ECDH-ES+A128KW</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>ECDH-ES+A192KW</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>ECDH-ES+A256KW</p></td>
+<td><p>ECKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-success sd-bg-text-success">是</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>A128GCMKW</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>A192GCMKW</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>A256GCMKW</p></td>
+<td><p>OctKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>PBES2-HS256+A128KW</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>PBES2-HS384+A192KW</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+<tr class="row-even"><td><p>PBES2-HS512+A256KW</p></td>
+<td><p>RSAKey</p></td>
+<td><p><span class="sd-sphinx-override sd-badge sd-bg-danger sd-bg-text-danger">否</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>RFC7518 中定义的所有用于 &quot;enc&quot; 值的算法都是推荐使用的，包括：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">A128CBC-HS256</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A192CBC-HS384</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A256CBC-HS512</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A128GCM</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A192GCM</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">A256GCM</span></code></p></li>
+</ul>
+<p>RFC7518 还定义了用于 &quot;zip&quot;（压缩）头参数的 <code class="docutils literal notranslate"><span class="pre">DEF</span></code> 算法，该算法推荐使用。</p>
+<p>草案版本中还有针对 &quot;alg&quot; 和 &quot;enc&quot; 的额外算法。请参考以下章节获取更多信息。</p>
+<section id="okpkey">
+<h3>OKPKey<a class="headerlink" href="#okpkey" title="此标题的永久链接">¶</a></h3>
+<p>对于以下算法，您可以使用 <code class="docutils literal notranslate"><span class="pre">OKPKey</span></code> 并将 &quot;crv&quot;（曲线）参数设置为 <code class="docutils literal notranslate"><span class="pre">X25519</span></code> 或 <code class="docutils literal notranslate"><span class="pre">X448</span></code>：</p>
+<ul class="simple">
+<li><p>ECDH-ES</p></li>
+<li><p>ECDH-ES+A128KW</p></li>
+<li><p>ECDH-ES+A192KW</p></li>
+<li><p>ECDH-ES+A256KW</p></li>
+</ul>
+<p>This allows you to utilize these elliptic curve algorithms with <code class="docutils literal notranslate"><span class="pre">OKPKey</span></code> for your
+cryptographic operations.</p>
+</section>
+<section id="c20p-and-xc20p">
+<span id="chacha20"></span><h3>C20P 与 XC20P<a class="headerlink" href="#c20p-and-xc20p" title="此标题的永久链接">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">C20P</span></code> 和 <code class="docutils literal notranslate"><span class="pre">XC20P</span></code> 算法仍处于草案阶段，默认状态下他们未注册到 <code class="docutils literal notranslate"><span class="pre">JWERegistry</span></code>。要使用 <code class="docutils literal notranslate"><span class="pre">C20P</span></code> 和 <code class="docutils literal notranslate"><span class="pre">XC20P</span></code>，开发人员必须安装 <code class="docutils literal notranslate"><span class="pre">PyCryptodome</span></code> 模块。</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span id="1-1">pip<span class="w"> </span>install<span class="w"> </span>pycryptodome
+</span></pre></div>
+</div>
+<p>这是由于 <code class="docutils literal notranslate"><span class="pre">cryptography</span></code> 库只支持 &quot;ChaCha20&quot; 密码算法，不支持 <strong>XChaCha20</strong>，而 <code class="docutils literal notranslate"><span class="pre">pycryptodome</span></code> 同时支持 &quot;ChaCha20&quot; 和 &quot;XChaCha20&quot; 密码算法。</p>
+<section id="register-ciphers">
+<h4>注册密码算法<a class="headerlink" href="#register-ciphers" title="此标题的永久链接">¶</a></h4>
+<p>默认的 <a class="reference internal" href="../registry/#registry"><span class="std std-ref">注册表</span></a> 不包含草案算法，开发人员必须先注册 <code class="docutils literal notranslate"><span class="pre">C20P</span></code> 和 <code class="docutils literal notranslate"><span class="pre">XC20P</span></code>：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.drafts.jwe_chacha20</span> <span class="kn">import</span> <span class="n">register_chaha20_poly1305</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">register_chaha20_poly1305</span><span class="p">()</span>
+</span></pre></div>
+</div>
+</section>
+<section id="use-custom-registry">
+<h4>自定义注册表 <code class="docutils literal notranslate"><span class="pre">registry</span></code><a class="headerlink" href="#use-custom-registry" title="此标题的永久链接">¶</a></h4>
+<p>在 <a class="reference internal" href="../../api/jwe/#joserfc.jwe.encrypt_compact" title="joserfc.jwe.encrypt_compact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encrypt_compact()</span></code></a>、<a class="reference internal" href="../../api/jwe/#joserfc.jwe.decrypt_compact" title="joserfc.jwe.decrypt_compact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decrypt_compact()</span></code></a>、<a class="reference internal" href="../../api/jwe/#joserfc.jwe.encrypt_json" title="joserfc.jwe.encrypt_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encrypt_json()</span></code></a> 和 <a class="reference internal" href="../../api/jwe/#joserfc.jwe.decrypt_json" title="joserfc.jwe.decrypt_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">decrypt_json()</span></code></a> 中使用自定义 <code class="docutils literal notranslate"><span class="pre">registry</span></code>。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwe</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">OctKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">registry</span> <span class="o">=</span> <span class="n">jwe</span><span class="o">.</span><span class="n">JWERegistry</span><span class="p">(</span>
+</span><span id="1-5">    <span class="c1"># add more &quot;alg&quot; and &quot;enc&quot; if you want</span>
+</span><span id="1-6">    <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;C20P&quot;</span><span class="p">]</span>
+</span><span id="1-7"><span class="p">)</span>
+</span><span id="1-8">
+</span><span id="1-9"><span class="n">key</span> <span class="o">=</span> <span class="n">OctKey</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>  <span class="c1"># A128KW requires 128 bits key</span>
+</span><span id="1-10"><span class="n">protected</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;enc&quot;</span><span class="p">:</span> <span class="s2">&quot;C20P&quot;</span><span class="p">}</span>
+</span><span id="1-11"><span class="n">encrypted_text</span> <span class="o">=</span> <span class="n">jwe</span><span class="o">.</span><span class="n">encrypt_compact</span><span class="p">(</span>
+</span><span id="1-12">    <span class="n">protected</span><span class="p">,</span>
+</span><span id="1-13">    <span class="sa">b</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span>
+</span><span id="1-14">    <span class="n">public_key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+</span><span id="1-15">    <span class="n">registry</span><span class="o">=</span><span class="n">registry</span><span class="p">,</span>
+</span><span id="1-16"><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+</section>
+<section id="ecdh-1pu-algorithms">
+<span id="ecdh1pu"></span><h3>ECDH-1PU 相关算法<a class="headerlink" href="#ecdh-1pu-algorithms" title="此标题的永久链接">¶</a></h3>
+<p>椭圆曲线迪菲-赫尔曼一次通用模型（ECDH-1PU）密钥协商仍然处于草案阶段，默认情况下未注册。要使用与 <code class="docutils literal notranslate"><span class="pre">ECDH-1PU</span></code> 相关的算法，开发人员必须手动注册它们：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.drafts.jwe_ecdh_1pu</span> <span class="kn">import</span> <span class="n">register_ecdh_1pu</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">register_ecdh_1pu</span><span class="p">()</span>
+</span></pre></div>
+</div>
+<p>然后使用带有所需的 <code class="docutils literal notranslate"><span class="pre">ECDH-1PU</span></code> 算法的自定义 <code class="docutils literal notranslate"><span class="pre">registry</span></code>。例如：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwe</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">ECKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">registry</span> <span class="o">=</span> <span class="n">jwe</span><span class="o">.</span><span class="n">JWERegistry</span><span class="p">(</span>
+</span><span id="1-5">    <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ECDH-1PU+A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;A128CBC-HS256&quot;</span><span class="p">]</span>
+</span><span id="1-6"><span class="p">)</span>
+</span><span id="1-7"><span class="n">protected</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;ECDH-1PU+A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;enc&quot;</span><span class="p">:</span> <span class="s2">&quot;A128CBC-HS256&quot;</span><span class="p">}</span>
+</span><span id="1-8"><span class="n">recipient_key</span> <span class="o">=</span> <span class="n">ECKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="s2">&quot;your-ec-public-key.json&quot;</span><span class="p">)</span>
+</span><span id="1-9"><span class="n">sender_key</span> <span class="o">=</span> <span class="n">ECKey</span><span class="o">.</span><span class="n">import_key</span><span class="p">(</span><span class="s2">&quot;your-ec-sender-key.json&quot;</span><span class="p">)</span>  <span class="c1"># this SHOULD be a private key</span>
+</span><span id="1-10"><span class="n">encrypted_text</span> <span class="o">=</span> <span class="n">jwe</span><span class="o">.</span><span class="n">encrypt_compact</span><span class="p">(</span>
+</span><span id="1-11">    <span class="n">protected</span><span class="p">,</span>
+</span><span id="1-12">    <span class="sa">b</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span>
+</span><span id="1-13">    <span class="n">public_key</span><span class="o">=</span><span class="n">recipient_key</span><span class="p">,</span>
+</span><span id="1-14">    <span class="n">registry</span><span class="o">=</span><span class="n">registry</span><span class="p">,</span>
+</span><span id="1-15">    <span class="n">sender_key</span><span class="o">=</span><span class="n">sender_key</span><span class="p">,</span>
+</span><span id="1-16"><span class="p">)</span>
+</span></pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">重要</p>
+<p><code class="docutils literal notranslate"><span class="pre">ECDH-1PU</span></code> 算法需要一个 <strong>发送方密钥</strong>，在调用 <a class="reference internal" href="../../api/jwe/#joserfc.jwe.encrypt_compact" title="joserfc.jwe.encrypt_compact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encrypt_compact()</span></code></a> 和 <a class="reference internal" href="../../api/jwe/#joserfc.jwe.encrypt_json" title="joserfc.jwe.encrypt_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">encrypt_json()</span></code></a> 方法时，该密钥必须是私钥。</p>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">sender_key</span></code> 可以是 <code class="xref py py-class docutils literal notranslate"><span class="pre">KeySet</span></code>，JWE 会根据 <code class="docutils literal notranslate"><span class="pre">skid</span></code> 头部值查找正确的密钥。</p>
+</section>
+</section>
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../jwe/">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>上一章</span>
+        
+        <div class="title">JSON Web Encryption</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="../registry/">
+      <div class="page-info">
+        <span>下一章</span>
+        <div class="title">注册表</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script src="../../_static/shibuya.js"></script>
+    
+</body>
+</html>

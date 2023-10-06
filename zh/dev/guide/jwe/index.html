@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>JSON Web Encryption - joserfc</title>
+    <link rel="index" title="索引" href="../../genindex/" /><link rel="search" title="搜索" href="../../search/" /><link rel="next" title="算法" href="../algorithms/" /><link rel="prev" title="JSON Web Signature" href="../jws/" />
+    <link rel="canonical" href="https://jose.authlib.org/zh/dev/guide/jwe/" />
+  <script>
+    const isDarkTheme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const sessionTheme = sessionStorage['_theme']
+    if (sessionTheme) {
+      document.documentElement.classList.add(sessionTheme)
+    } else if (isDarkTheme) {
+      document.documentElement.classList.add('dark')
+    }
+  </script><link rel="shortcut icon" href="../../_static/icon.svg"/><link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/shibuya.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css" />
+    <link media="print" rel="stylesheet" type="text/css" href="../../_static/print.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/custom.css" />
+    <style>
+:root {
+  --sy-f-sys:-apple-system, BlinkMacSystemFont, Segoe UI, Oxygen, Ubuntu, Droid Sans, Helvetica Neue;--sy-f-cjk:PingFang SC, Hiragino Sans GB, Droid Sans Fallback, Microsoft YaHei;--sy-f-heading:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-text:var(--sy-f-sys), var(--sy-f-cjk), sans-serif;--sy-f-mono:Menlo, Monaco, Consolas, "Courier New", monospace;--sy-c-divider:rgba(var(--sy-rc-text), 0.1);--sy-c-divider-weak:rgba(var(--sy-rc-text), 0.05);--sy-c-border:rgba(var(--sy-rc-text), 0.14);--sy-s-banner-height:0rem;--sy-s-navbar-height:56px;--sy-s-offset-top:calc(var(--sy-s-navbar-height) + var(--sy-s-banner-height));--sy-c-link:rgb(var(--sy-rc-theme));--sy-c-link-weak:rgba(var(--sy-rc-theme), 0.86);
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+  }
+}
+html.light {
+  --sy-rc-theme:62,127,203;--sy-rc-bg:255, 255, 255;--sy-rc-invert:0, 0, 0;--sy-rc-text:0, 0, 0;--sy-c-bg:#fff;--sy-c-bg-weak:#f9f9f9;--sy-c-text:#374151;--sy-c-text-weak:#6b7280;--sy-c-heading:#111827;--sy-c-bold:#111827;--sy-c-foot-text:#232226;--sy-c-foot-bg:#fafafa;--sy-c-foot-divider:#f0f0f0;
+}
+html.dark {
+  --sy-rc-theme:102,173,255;--sy-rc-bg:18, 18, 18;--sy-rc-invert:255, 255, 255;--sy-rc-text:255, 255, 255;--sy-c-bg:#121212;--sy-c-bg-weak:#212833;--sy-c-text:#cedbea;--sy-c-text-weak:#77889f;--sy-c-heading:#ebf0f4;--sy-c-bold:#ebf0f4;--sy-c-foot-text:#eee;--sy-c-foot-bg:#000;--sy-c-foot-divider:#000;
+}
+</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sy-f-heading: Inter, var(--sy-f-sys), var(--sy-f-cjk), sans-serif;
+}
+</style>
+    <meta property="og:type" content="website"/>
+<meta property="og:url" content="https://jose.authlib.org/zh/dev/guide/jwe/"/>
+<meta property="og:title" content="JSON Web Encryption"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="description" content="How to encrypt and decrypt JWE in Compact, General JSON, and Flattened JSON Serialization."/>
+<meta property="og:description" content="How to encrypt and decrypt JWE in Compact, General JSON, and Flattened JSON Serialization."/>
+<meta name="twitter:creator" content="@lepture"/>
+<meta name="twitter:site" content="@authlib"/>
+        <link rel="alternate" hreflang="en" href="https://jose.authlib.org/en/dev/guide/jwe/" />
+  </head>
+<body><div class="document"><div class="sy-head">
+  <div class="sy-head-blur"></div>
+  <div class="sy-head-inner sy-container mx-auto">
+    <a class="sy-head-brand mr-4" href="../../">
+      <img class="light-logo" src="../../_static/light-logo.svg" alt="joserfc" height="28" />
+      <img class="dark-logo" src="../../_static/dark-logo.svg" alt="joserfc" height="28" />
+      <strong>joserfc</strong>
+    </a>
+    <div class="sy-head-links" id="NavLinks">
+      <nav class="sy-head-nav">
+
+<ul>
+      <li class="link"><button type="button">
+            <span>Projects</span>
+            <i class="i-icon chevron"></i>
+          </button>
+        <ul>
+          <li><a href="https://authlib.org/">
+                <span>Authlib</span>
+                <small>OAuth, JOSE, OpenID, etc.</small>
+              </a></li><li><a href="https://jose.authlib.org/">
+                <span>JOSE RFC</span>
+                <small>JWS, JWE, JWK, and JWT.</small>
+              </a></li><li><a href="https://otp.authlib.org/">
+                <span>OTP Auth</span>
+                <small>One time password, HOTP/TOTP.</small>
+              </a></li></ul>
+      </li><li class="link">
+          <a href="https://github.com/sponsors/authlib"><span>Sponsor me</span><i class="i-icon external-link"></i></a>
+        </li></ul></nav>
+      <div class="sy-head-extra flex items-center print:hidden"><form class="searchbox flex items-center" action="../../search/" method="get">
+  <input type="text" name="q" placeholder="搜索" />
+  <kbd>/</kbd>
+</form>
+        
+        
+<div class="nav-languages">
+  <button type="button">
+    <span class="md:hidden">翻译</span>
+    <i class="i-icon languages"></i>
+  </button>
+  <div class="nav-languages-choices">
+    <ul><li><a href="https://jose.authlib.org/en/dev/guide/jwe/">English</a></li><li><a href="https://jose.authlib.org/zh/dev/guide/jwe/">简体中文</a></li></ul>
+  </div>
+</div>
+
+        <div class="sy-head-social flex items-center">
+            <a class="flex items-center" href="https://github.com/authlib/joserfc" aria-label="GitHub">
+              <i class="i-icon github"></i>
+            </a>
+            <a class="flex items-center" href="https://discord.gg/HvBVAeNAaV" aria-label="Discord">
+              <i class="i-icon discord"></i>
+            </a>
+        </div>
+      </div>
+    </div>
+    <div class="sy-head-actions flex items-center shrink-0 print:hidden">
+      <button class="js-theme theme-switch flex items-center" data-aria-light="切换到暗色模式" data-aria-dark="切换到亮色模式">
+        <i class="i-icon theme-icon"></i>
+      </button>
+      <button class="md:hidden flex items-center js-menu" aria-label="Menu" type="button" aria-controls="NavLinks" aria-expanded="false">
+        <div class="hamburger">
+          <span class="hamburger_1"></span>
+          <span class="hamburger_2 -translate-x-2"></span>
+          <span class="hamburger_3 -translate-x-1"></span>
+        </div>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="sy-page sy-container flex mx-auto">
+  <aside id="lside" class="sy-lside md:w-72 md:shrink-0 print:hidden">
+    <div class="sy-lside-inner md:sticky">
+      <div class="sy-scrollbar p-6">
+        <div class="globaltoc" data-expand-depth="0"><p class="caption" role="heading"><span class="caption-text">开始上手</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../introduction/">介绍</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../install/">安装</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">必读文档</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../">教程</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../jwk/">JSON Web Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jwt/">JSON Web Token</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../jws/">JSON Web Signature</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">JSON Web Encryption</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../algorithms/">算法</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../registry/">注册表</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../migrations/">迁移</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/authlib/">从 Authlib 迁移到 joserfc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../migrations/pyjwt/">从 PyJWT 迁移到 joserfc</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">小技巧</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/azure/">Dynamic keys for Azure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../recipes/openssl/">Using OpenSSL command</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">开发者文档</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api/">API 参考</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jws/">JWS API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwe/">JWE API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwk/">JWK API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/jwt/">JWT API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../security/">安全</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../stability/">稳定性</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing/">参与贡献</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/structure/">代码结构</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/translation/">翻译</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/authors/">作者列表</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributing/sponsors/">赞助者</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog/">历史记录</a></li>
+</ul>
+
+        </div>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="lside-overlay js-menu" role="button" aria-label="Close left sidebar" aria-controls="lside" aria-expanded="false"></div>
+  <aside id="rside" class="sy-rside pb-3 w-64 shrink-0 order-last">
+    <button class="rside-close js-menu xl:hidden" aria-label="Close Table of Contents" type="button" aria-controls="rside" aria-expanded="false">
+      <i class="i-icon close"></i>
+    </button>
+    <div class="sy-scrollbar sy-rside-inner px-6 xl:top-16 xl:sticky xl:pl-0 pt-6 pb-4">
+  <div class="localtoc">
+    <h3>该页内容</h3>
+    <ul>
+<li><a class="reference internal" href="#compact-encryption">&#32039;&#20945;&#22411;&#21152;&#23494;</a><ul>
+<li><a class="reference internal" href="#encryption">&#21152;&#23494;</a></li>
+<li><a class="reference internal" href="#decryption">&#35299;&#23494;</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#json-encryption">JSON Encryption</a><ul>
+<li><a class="reference internal" href="#id1">&#21152;&#23494;</a></li>
+<li><a class="reference internal" href="#id2">&#35299;&#23494;</a></li>
+<li><a class="reference internal" href="#general-and-flattened">General and Flattened</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#algorithms-registry">&#31639;&#27861;&#21644;&#27880;&#20876;&#34920;</a></li>
+</ul>
+
+  </div><a class="js-repo-stats repo-stats flex items-center" href="https://github.com/authlib/joserfc"
+  data-type="github" data-user="authlib" data-repo="joserfc">
+  <span class="w-8 flex items-center justify-around shrink-0 text-2xl">
+    <i class="i-icon github"></i>
+  </span>
+  <span class="flex-grow px-2">
+    <span>authlib/joserfc</span>
+    <span class="flex text-sm repo-stats-count">
+      <span class="flex items-center pr-3">
+        <i class="i-icon star"></i>
+        <strong class="js-repo-stars ml-1">0</strong>
+      </span>
+      <span class="flex items-center">
+        <i class="i-icon git-fork"></i>
+        <strong class="js-repo-forks ml-1">0</strong>
+      </span>
+    </span>
+  </span>
+</a><div class="edit-this-page">
+  <a href="https://github.com/authlib/joserfc/blob/master/docs/guide/jwe.rst">编辑此页面</a>
+</div>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7DKK3W&placement=joseauthliborg" id="_carbonads_js"></script><div id="ethical-ad-placement" data-ea-publisher="readthedocs"></div>
+    </div>
+  </aside>
+  <div class="rside-overlay js-menu" role="button" aria-label="Close Table of Contents" aria-controls="rside" aria-expanded="false"></div>
+  <main class="sy-main w-full max-sm:max-w-full print:pt-6">
+    <div class="sy-breadcrumbs" role="navigation">
+  <div class="sy-breadcrumbs-inner flex items-center">
+    <div class="md:hidden mr-3">
+      <button class="js-menu" aria-label="Menu" type="button" aria-controls="lside" aria-expanded="false">
+        <i class="i-icon menu"></i>
+      </button>
+    </div>
+    <ul class="flex-1">
+      
+      
+      <li><a href="../../">joserfc</a><span>/</span></li>
+      
+      <li><a href="../">教程</a><span>/</span></li>
+      
+      <li><strong>JSON Web Encryption</strong></li>
+      
+      
+    </ul>
+    <div class="xl:hidden ml-1">
+      <button class="js-menu" aria-label="Show table of contents" type="button" aria-controls="rside"
+        aria-expanded="false">
+        <i class="i-icon outdent"></i>
+      </button>
+    </div>
+  </div>
+</div>
+    <div class="flex flex-col break-words justify-between">
+      <div class="min-w-0 max-w-6xl px-6 pb-6 pt-8 xl:px-12">
+        <article class="yue" role="main">
+          <section id="json-web-encryption">
+<span id="jwe"></span><h1>JSON Web Encryption<a class="headerlink" href="#json-web-encryption" title="此标题的永久链接">¶</a></h1>
+<p>JSON Web Encryption (JWE) 使用基于 JSON 的数据结构表示加密内容。（参考 <a class="reference external" href="https://www.rfc-editor.org/rfc/rfc7516">RFC7516</a>）</p>
+<section id="compact-encryption">
+<h2>紧凑型加密<a class="headerlink" href="#compact-encryption" title="此标题的永久链接">¶</a></h2>
+<p>JWE 紧凑型（Compact）序列化将加密内容表示为紧凑的、URL 安全的字符串。该字符串为：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><span id="1-1">BASE64URL(UTF8(JWE Protected Header)) || &#39;.&#39; ||
+</span><span id="1-2">BASE64URL(JWE Encrypted Key) || &#39;.&#39; ||
+</span><span id="1-3">BASE64URL(JWE Initialization Vector) || &#39;.&#39; ||
+</span><span id="1-4">BASE64URL(JWE Ciphertext) || &#39;.&#39; ||
+</span><span id="1-5">BASE64URL(JWE Authentication Tag)
+</span></pre></div>
+</div>
+<p>以下是一个紧凑型序列化的例子（换行符仅用于显示目的）：</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><span id="1-1">eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkEyNTZHQ00ifQ.
+</span><span id="1-2">OKOawDo13gRp2ojaHV7LFpZcgV7T6DVZKTyKOMTYUmKoTCVJRgckCL9kiMT03JGe
+</span><span id="1-3">ipsEdY3mx_etLbbWSrFr05kLzcSr4qKAq7YN7e9jwQRb23nfa6c9d-StnImGyFDb
+</span><span id="1-4">Sv04uVuxIp5Zms1gNxKKK2Da14B8S4rzVRltdYwam_lDp5XnZAYpQdb76FdIKLaV
+</span><span id="1-5">mqgfwX7XWRxv2322i-vDxRfqNzo_tETKzpVLzfiwQyeyPGLBIO56YJ7eObdv0je8
+</span><span id="1-6">1860ppamavo35UgoRdbYaBcoh9QcfylQr66oc6vFWXRcZ_ZT2LawVCWTIy3brGPi
+</span><span id="1-7">6UklfCpIMfIjf7iGdXKHzg.
+</span><span id="1-8">48V1_ALb6US04U3b.
+</span><span id="1-9">5eym8TW_c8SuK0ltJ3rpYIzOeDQz7TALvtu6UG9oMo4vpzs9tX_EFShS8iB7j6ji
+</span><span id="1-10">SdiwkIr3ajwQzaBtQD_A.
+</span><span id="1-11">XFBoMYUZodetZdvTiFvSkQ
+</span></pre></div>
+</div>
+<section id="encryption">
+<h3>加密<a class="headerlink" href="#encryption" title="此标题的永久链接">¶</a></h3>
+<p>你可以调用 <a class="reference internal" href="../../api/jwe/#joserfc.jwe.encrypt_compact" title="joserfc.jwe.encrypt_compact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jwe.encrypt_compact()</span></code></a> 来构建一个紧凑型序列化：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwe</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">OctKey</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">protected</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;enc&quot;</span><span class="p">:</span> <span class="s2">&quot;A128GCM&quot;</span><span class="p">}</span>
+</span><span id="1-5"><span class="n">key</span> <span class="o">=</span> <span class="n">OctKey</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>  <span class="c1"># algorithm requires key of big size 128</span>
+</span><span id="1-6"><span class="n">data</span> <span class="o">=</span> <span class="n">jwe</span><span class="o">.</span><span class="n">encrypt_compact</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>A compact JWE is constructed by <code class="docutils literal notranslate"><span class="pre">protected</span></code> header, <code class="docutils literal notranslate"><span class="pre">plaintext</span></code> and a public key.
+In the above example, <code class="docutils literal notranslate"><span class="pre">protected</span></code> is the &quot;protected header&quot; part, <cite>&quot;hello&quot;</cite> is the
+plaintext part, and <code class="docutils literal notranslate"><span class="pre">key</span></code> is the public key part (oct key is a symmetric key, it is
+a shared key, there is no public or private differences).</p>
+<p>It is suggested that you learn the <a class="reference internal" href="../jwk/#jwk"><span class="std std-ref">JSON Web Key</span></a> section, and find the correct key type
+according to <a class="reference internal" href="../algorithms/#jwe-algorithms"><span class="std std-ref">JSON Web Encryption Algorithms</span></a>.</p>
+</section>
+<section id="decryption">
+<h3>解密<a class="headerlink" href="#decryption" title="此标题的永久链接">¶</a></h3>
+<p>It is very easy to decrypt the compact serialization in the previous example with
+<a class="reference internal" href="../../api/jwe/#joserfc.jwe.decrypt_compact" title="joserfc.jwe.decrypt_compact"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jwe.decrypt_compact()</span></code></a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">obj</span> <span class="o">=</span> <span class="n">jwe</span><span class="o">.</span><span class="n">decrypt_compact</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+</span><span id="1-2"><span class="c1"># obj.protected =&gt; {&quot;alg&quot;: &quot;A128KW&quot;, &quot;enc&quot;: &quot;A128GCM&quot;}</span>
+</span><span id="1-3"><span class="c1"># obj.plaintext =&gt; b&quot;hello&quot;</span>
+</span></pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">备注</p>
+<p>If the algorithm is accepting an asymmetric key, you MUST use a private key
+in <code class="docutils literal notranslate"><span class="pre">decrypt_compact</span></code> method.</p>
+</div>
+</section>
+</section>
+<section id="json-encryption">
+<h2>JSON Encryption<a class="headerlink" href="#json-encryption" title="此标题的永久链接">¶</a></h2>
+<p>The JWE JSON Serialization represents encrypted content as a JSON
+object.  This representation is neither optimized for compactness nor
+URL safe.</p>
+<p>An example of a JWE using the general JWE JSON Serialization is as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><span id="1-1">{
+</span><span id="1-2">   &quot;protected&quot;:&quot;&lt;integrity-protected shared header contents&gt;&quot;,
+</span><span id="1-3">   &quot;unprotected&quot;:&lt;non-integrity-protected shared header contents&gt;,
+</span><span id="1-4">   &quot;recipients&quot;:[
+</span><span id="1-5">    {&quot;header&quot;:&lt;per-recipient unprotected header 1 contents&gt;,
+</span><span id="1-6">     &quot;encrypted_key&quot;:&quot;&lt;encrypted key 1 contents&gt;&quot;},
+</span><span id="1-7">    ...
+</span><span id="1-8">    {&quot;header&quot;:&lt;per-recipient unprotected header N contents&gt;,
+</span><span id="1-9">     &quot;encrypted_key&quot;:&quot;&lt;encrypted key N contents&gt;&quot;}],
+</span><span id="1-10">   &quot;aad&quot;:&quot;&lt;additional authenticated data contents&gt;&quot;,
+</span><span id="1-11">   &quot;iv&quot;:&quot;&lt;initialization vector contents&gt;&quot;,
+</span><span id="1-12">   &quot;ciphertext&quot;:&quot;&lt;ciphertext contents&gt;&quot;,
+</span><span id="1-13">   &quot;tag&quot;:&quot;&lt;authentication tag contents&gt;&quot;
+</span><span id="1-14">}
+</span></pre></div>
+</div>
+<section id="id1">
+<h3>加密<a class="headerlink" href="#id1" title="此标题的永久链接">¶</a></h3>
+<div class="versionchanged">
+<p><span class="versionmodified changed">在 0.6.0 版本发生变更: </span><code class="docutils literal notranslate"><span class="pre">jwe.JSONEncryption</span></code> is seperated to <code class="docutils literal notranslate"><span class="pre">GeneralJSONEncryption</span></code> and <code class="docutils literal notranslate"><span class="pre">FlattenedJSONEncryption</span></code>.</p>
+</div>
+<p>The structure for JSON JWE serialization is a little complex, developers
+SHOULD create an object of <a class="reference internal" href="../../api/jwe/#joserfc.jwe.GeneralJSONEncryption" title="joserfc.jwe.GeneralJSONEncryption"><code class="xref py py-class docutils literal notranslate"><span class="pre">jwe.GeneralJSONEncryption</span></code></a> at first:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">OctKey</span><span class="p">,</span> <span class="n">RSAKey</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwe</span> <span class="kn">import</span> <span class="n">GeneralJSONEncryption</span><span class="p">,</span> <span class="n">encrypt_json</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="n">obj</span> <span class="o">=</span> <span class="n">GeneralJSONEncryption</span><span class="p">({</span><span class="s2">&quot;enc&quot;</span><span class="p">:</span> <span class="s2">&quot;A128GCM&quot;</span><span class="p">},</span> <span class="sa">b</span><span class="s2">&quot;hello&quot;</span><span class="p">)</span>
+</span><span id="1-5">
+</span><span id="1-6"><span class="c1"># add first recipient with alg of A128KW</span>
+</span><span id="1-7"><span class="n">key1</span> <span class="o">=</span> <span class="n">OctKey</span><span class="o">.</span><span class="n">generate_key</span><span class="p">(</span><span class="mi">128</span><span class="p">)</span>
+</span><span id="1-8"><span class="n">obj</span><span class="o">.</span><span class="n">add_recipient</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;A128KW&quot;</span><span class="p">},</span> <span class="n">key1</span><span class="p">)</span>
+</span><span id="1-9">
+</span><span id="1-10"><span class="c1"># add second recipient with alg of RSA-OAEP</span>
+</span><span id="1-11"><span class="n">key2</span> <span class="o">=</span> <span class="n">RSAKey</span><span class="o">.</span><span class="n">generate_key</span><span class="p">()</span>  <span class="c1"># the alg requires RSAKey</span>
+</span><span id="1-12"><span class="n">obj</span><span class="o">.</span><span class="n">add_recipient</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;RSA-OAEP&quot;</span><span class="p">},</span> <span class="n">key2</span><span class="p">)</span>
+</span><span id="1-13">
+</span><span id="1-14"><span class="c1"># since every recipient has recipient key,</span>
+</span><span id="1-15"><span class="c1"># there is no need to pass a public key parameter</span>
+</span><span id="1-16"><span class="n">encrypt_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>If you prefer adding recipient keys from existing key set:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">KeySet</span>
+</span><span id="1-3">
+</span><span id="1-4"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your-jwks.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="1-5">    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="1-6">    <span class="n">key_set</span> <span class="o">=</span> <span class="n">KeySet</span><span class="o">.</span><span class="n">import_key_set</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="1-7">
+</span><span id="1-8"><span class="c1"># then add each recipient with ``kid``</span>
+</span><span id="1-9"><span class="n">obj</span><span class="o">.</span><span class="n">add_recipient</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;A128KW&quot;</span><span class="p">,</span> <span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="s2">&quot;oct-key-id&quot;</span><span class="p">})</span>
+</span><span id="1-10"><span class="n">obj</span><span class="o">.</span><span class="n">add_recipient</span><span class="p">({</span><span class="s2">&quot;alg&quot;</span><span class="p">:</span> <span class="s2">&quot;RSA-OAEP&quot;</span><span class="p">,</span> <span class="s2">&quot;kid&quot;</span><span class="p">:</span> <span class="s2">&quot;rsa-key-id&quot;</span><span class="p">})</span>
+</span><span id="1-11"><span class="c1"># then pass the key set as the ``key`` parameter</span>
+</span><span id="1-12"><span class="n">encrypt_json</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">key_set</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>解密<a class="headerlink" href="#id2" title="此标题的永久链接">¶</a></h3>
+<p>Calling <a class="reference internal" href="../../api/jwe/#joserfc.jwe.decrypt_json" title="joserfc.jwe.decrypt_json"><code class="xref py py-meth docutils literal notranslate"><span class="pre">jwe.decrypt_json()</span></code></a> could decrypt the JSON Serialization in the above
+example. Most of the time, you would need a JWK Set of private keys for decryption.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="kn">import</span> <span class="nn">json</span>
+</span><span id="1-2"><span class="kn">from</span> <span class="nn">joserfc</span> <span class="kn">import</span> <span class="n">jwe</span>
+</span><span id="1-3"><span class="kn">from</span> <span class="nn">joserfc.jwk</span> <span class="kn">import</span> <span class="n">KeySet</span>
+</span><span id="1-4">
+</span><span id="1-5"><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;your-private-jwks.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+</span><span id="1-6">    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</span><span id="1-7">    <span class="n">key_set</span> <span class="o">=</span> <span class="n">KeySet</span><span class="o">.</span><span class="n">import_key_set</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="1-8">
+</span><span id="1-9"><span class="k">def</span> <span class="nf">parse_jwe</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+</span><span id="1-10">    <span class="c1"># this data is a dict of JWE JSON Serialization</span>
+</span><span id="1-11">    <span class="n">jwe</span><span class="o">.</span><span class="n">decrypt_json</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">key_set</span><span class="p">)</span>
+</span></pre></div>
+</div>
+</section>
+<section id="general-and-flattened">
+<h3>General and Flattened<a class="headerlink" href="#general-and-flattened" title="此标题的永久链接">¶</a></h3>
+<p>The above example is a General JWE JSON Serialization, there is also a Flattened
+JWE JSON Serialization. The Flattened one MUST ONLY contain one recipient.</p>
+<p>The syntax of a JWE using the flattened JWE JSON Serialization is as follows:</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span><span id="1-1">{
+</span><span id="1-2">  &quot;protected&quot;:&quot;&lt;integrity-protected header contents&gt;&quot;,
+</span><span id="1-3">  &quot;unprotected&quot;:&lt;non-integrity-protected header contents&gt;,
+</span><span id="1-4">  &quot;header&quot;:&lt;more non-integrity-protected header contents&gt;,
+</span><span id="1-5">  &quot;encrypted_key&quot;:&quot;&lt;encrypted key contents&gt;&quot;,
+</span><span id="1-6">  &quot;aad&quot;:&quot;&lt;additional authenticated data contents&gt;&quot;,
+</span><span id="1-7">  &quot;iv&quot;:&quot;&lt;initialization vector contents&gt;&quot;,
+</span><span id="1-8">  &quot;ciphertext&quot;:&quot;&lt;ciphertext contents&gt;&quot;,
+</span><span id="1-9">  &quot;tag&quot;:&quot;&lt;authentication tag contents&gt;&quot;
+</span><span id="1-10">}
+</span></pre></div>
+</div>
+<p>It is flattened, it moves all the members out of the <code class="docutils literal notranslate"><span class="pre">recipients</span></code> field. To
+<code class="docutils literal notranslate"><span class="pre">encrypt_json</span></code> into a flattened serialization, you can construct a
+:class`jwe.FlattenedJSONEncryption` instead:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">obj</span> <span class="o">=</span> <span class="n">FlattenedJSONEncryption</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>同时注意，你只能增加一位成员。</p>
+</section>
+</section>
+<section id="algorithms-registry">
+<h2>算法和注册表<a class="headerlink" href="#algorithms-registry" title="此标题的永久链接">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">joserfc.jwe</span></code> module would ONLY allow recommended algorithms by default,
+you can find which algorithm is recommended according to
+<a class="reference internal" href="../algorithms/#jwe-algorithms"><span class="std std-ref">JSON Web Encryption Algorithms</span></a>.</p>
+<p>It is possible to support non-recommended algorithms by passing the
+<code class="docutils literal notranslate"><span class="pre">algorithms</span></code> parameter, or with a custom <code class="docutils literal notranslate"><span class="pre">registry</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span id="1-1"><span class="n">jwe</span><span class="o">.</span><span class="n">encrypt_compact</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;A128GCM&quot;</span><span class="p">,</span> <span class="s2">&quot;A128KW&quot;</span><span class="p">])</span>
+</span><span id="1-2">
+</span><span id="1-3"><span class="n">registry</span> <span class="o">=</span> <span class="n">JWERegistry</span><span class="p">(</span><span class="n">algorithms</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;A128GCM&quot;</span><span class="p">,</span> <span class="s2">&quot;A128KW&quot;</span><span class="p">])</span>
+</span><span id="1-4"><span class="n">jwe</span><span class="o">.</span><span class="n">encrypt_compact</span><span class="p">(</span><span class="n">protected</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">registry</span><span class="o">=</span><span class="n">registry</span><span class="p">)</span>
+</span></pre></div>
+</div>
+<p>The registry is a little complex, find out more on the <a class="reference internal" href="../registry/#registry"><span class="std std-ref">注册表</span></a> section.</p>
+</section>
+</section>
+
+        </article>
+        
+        <div class="navigation flex print:hidden">
+  <div class="navigation-prev">
+    <a href="../jws/">
+      <i class="i-icon chevron"></i>
+      <div class="page-info">
+        <span>上一章</span>
+        
+        <div class="title">JSON Web Signature</div>
+        
+      </div>
+    </a>
+  </div>
+  <div class="navigation-next">
+    <a href="../algorithms/">
+      <div class="page-info">
+        <span>下一章</span>
+        <div class="title">算法</div>
+      </div>
+      <i class="i-icon chevron"></i>
+    </a>
+  </div>
+</div>
+        
+      </div>
+    </div>
+  </main>
+</div>
+<footer class="sy-foot">
+  <div class="sy-foot-inner sy-container mx-auto">
+    
+    <div class="sy-foot-reserved md:flex justify-between items-center">
+      <div class="sy-foot-copyright"><p>Copyright &copy; 2023, Hsiaoming Yang</p>
+        
+        <p>
+          Made with
+          
+          <a href="https://www.sphinx-doc.org/">Sphinx</a> and
+          
+          <a href="https://shibuya.lepture.com">Shibuya theme</a>.
+        </p>
+      </div>
+      <div class="sy-foot-socials">
+          <a href="https://github.com/authlib/joserfc" aria-label="GitHub"><i class="i-icon github"></i></a>
+          <a href="https://twitter.com/authlib" aria-label="Twitter"><i class="i-icon twitter"></i></a>
+          <a href="https://discord.gg/HvBVAeNAaV" aria-label="Discord"><i class="i-icon discord"></i></a>
+      </div>
+    </div>
+  </div>
+</footer></div>
+      <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+      <script src="../../_static/doctools.js"></script>
+      <script src="../../_static/sphinx_highlight.js"></script>
+      <script src="../../_static/clipboard.min.js"></script>
+      <script src="../../_static/copybutton.js"></script>
+      <script src="../../_static/design-tabs.js"></script>
+      <script src="../../_static/shibuya.js"></script>
+    
+</body>
+</html>
